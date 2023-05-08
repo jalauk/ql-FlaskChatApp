@@ -1,4 +1,5 @@
 import axios from "axios";
+import moment from "moment";
 import ChatInput from "./ChatInput";
 import { useState,useEffect,useRef } from "react";
 
@@ -193,7 +194,7 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
                                         </figure>
                                         <div>
                                             <h5>{currentUser._id.$oid===message.from? currentUser.username : currentChat.username}</h5>
-                                            <div className="time">{new Date(message.time).toTimeString().substring(0,5)}<i className=
+                                            <div className="time">{moment(message.time).format('lll')}<i className=
                                                 {
                                                     message.from === currentUser._id.$oid 
                                                     ? 

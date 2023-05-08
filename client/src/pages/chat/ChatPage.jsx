@@ -5,6 +5,7 @@ import Archived from "./components/Archived";
 import Favorites from "./components/Favorites";
 import Navigation from "./components/Navigation";
 import { useState,useEffect,useRef } from "react";
+import EditProfile from "./components/EditProfile";
 import ChatSidebar from "./components/ChatSidebar";
 import CreateGroup from "./components/CreateGroup";
 import SidebarGroup from "./components/SidebarGroup";
@@ -154,6 +155,7 @@ function ChatPage () {
     return (
         <div>
             <CreateGroup/>
+            <EditProfile/>
             <div className="layout">
                 <Navigation/>
                 <div className="content">
