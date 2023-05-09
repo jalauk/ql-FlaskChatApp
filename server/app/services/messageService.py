@@ -8,7 +8,7 @@ def getAllMessage(room_id,page):
     if not chat:
         raise UnprocessableEntityException("Chat doesn't exists.")
     chat_id = chat.id
-    print(skip_element)
+    print(chat_id)
     messages = Message.objects(chat_id = chat_id).only("text","sender","created_at","seen_by").exclude("id").order_by("-created_at").skip(skip_element).limit(5)
     message_list = []
     for message in messages:

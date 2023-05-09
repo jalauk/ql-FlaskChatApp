@@ -154,7 +154,7 @@ function ChatPage () {
 
     return (
         <div>
-            <CreateGroup/>
+            <CreateGroup chatList={chatList} currentUser={currentUser}/>
             <EditProfile/>
             <div className="layout">
                 <Navigation/>

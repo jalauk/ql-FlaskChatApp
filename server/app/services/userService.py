@@ -113,13 +113,13 @@ def getAllChats(user_id):
                     current_chat["message"] = last_message.text if last_message else None
                     current_chat["_id"] = {"$oid" : str(participant.id)}
                     current_chat["username"] = participant.username
-                    
                     current_chat["message_time"] = str(last_message.created_at) if last_message else None
                     current_chat["online"] = True if str(participant.id) in ONLINE_USER else False
                     current_chat["is_group"] = False
                     current_chat["unread_count"] = unread_count
         else:
-            messages = Message.objects(chat_id=chat.id).order_by("-created_at").first()
+            print(chat)
+            messages = Message.objects(chat_id=chat.id)
             last_message = None
             unread_count = 0
             if messages:

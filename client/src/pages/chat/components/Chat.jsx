@@ -42,7 +42,6 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
         if(!("room_id" in currentChat)){
             if(previousChat != undefined){
                 leaveRoom()
-                console.log("leave room")
             }
             console.log("previousChat : ",previousChat)
             socket.current.emit("create-room",{"user_id":currentUser._id.$oid,"friend_id":currentChat._id.$oid},(room_id) => {

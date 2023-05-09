@@ -1,6 +1,6 @@
 function EditProfile(){
     return (
-        <div className="modal fade" id="editProfileModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div className="modal fade" id="editProfileModal" tabIndex="-1" role="dialog" aria-hidden="true">
             <div className="modal-dialog modal-dialog-centered modal-dialog-zoom" role="document">
                 <div className="modal-content">
                     <div className="modal-header">
@@ -30,7 +30,7 @@ function EditProfile(){
                             <div className="tab-pane show active" id="personal" role="tabpanel">
                                 <form>
                                     <div className="form-group">
-                                        <label for="fullname" className="col-form-label">Fullname</label>
+                                        <label htmlFor="fullname" className="col-form-label">Fullname</label>
                                         <div className="input-group">
                                             <input type="text" className="form-control" id="fullname"/>
                                             <div className="input-group-append">
@@ -51,12 +51,12 @@ function EditProfile(){
                                             </div>
                                             <div className="custom-file">
                                                 <input type="file" className="custom-file-input" id="customFile"/>
-                                                <label className="custom-file-label" for="customFile">Choose file</label>
+                                                <label className="custom-file-label" htmlFor="customFile">Choose file</label>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="form-group">
-                                        <label for="city" className="col-form-label">City</label>
+                                        <label htmlFor="city" className="col-form-label">City</label>
                                         <div className="input-group">
                                             <input type="text" className="form-control" id="city" placeholder="Ex: Columbia"/>
                                             <div className="input-group-append">
@@ -67,7 +67,7 @@ function EditProfile(){
                                         </div>
                                     </div>
                                     <div className="form-group">
-                                        <label for="phone" className="col-form-label">Phone</label>
+                                        <label htmlFor="phone" className="col-form-label">Phone</label>
                                         <div className="input-group">
                                             <input type="text" className="form-control" id="phone" placeholder="(555) 555 55 55"/>
                                             <div className="input-group-append">
@@ -78,7 +78,7 @@ function EditProfile(){
                                         </div>
                                     </div>
                                     <div className="form-group">
-                                        <label for="website" className="col-form-label">Website</label>
+                                        <label htmlFor="website" className="col-form-label">Website</label>
                                         <input type="text" className="form-control" id="website" placeholder="https:///"/>
                                     </div>
                                 </form>
@@ -86,13 +86,13 @@ function EditProfile(){
                             <div className="tab-pane" id="about" role="tabpanel">
                                 <form>
                                     <div className="form-group">
-                                        <label for="about-text" className="col-form-label">Write a few words that describe
+                                        <label htmlFor="about-text" className="col-form-label">Write a few words that describe
                                             you</label>
                                         <textarea className="form-control" id="about-text"></textarea>
                                     </div>
                                     <div className="custom-control custom-checkbox">
-                                        <input type="checkbox" className="custom-control-input" checked id="customCheck1"/>
-                                        <label className="custom-control-label" for="customCheck1">View profile</label>
+                                        <input type="checkbox" className="custom-control-input" defaultChecked id="customCheck1"/>
+                                        <label className="custom-control-label" htmlFor="customCheck1">View profile</label>
                                     </div>
                                 </form>
                             </div>
