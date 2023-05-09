@@ -118,13 +118,24 @@ def getAllChats(user_id):
                     current_chat["is_group"] = False
                     current_chat["unread_count"] = unread_count
         else:
-            print(chat)
             messages = Message.objects(chat_id=chat.id)
             last_message = None
             unread_count = 0
             if messages:
                 last_message = messages.order_by("-created_at").first()
                 unread_count = len(messages.filter(sender__ne=user_id,seen_by__size=0))
+            
+            participant_list = []
+            for participant in chat.participants:
+                if user_id != str(participant.id):
+                    print(str(participant.id))
+                    participant_list.append({"_id": {
+                                                        "$oid" : str(participant.id)
+                                                    },
+                                                    "username":participant.username
+                                                })
+                
+            current_chat["participants"] = participant_list
             current_chat["_id"] = {"$oid" : str(chat.id)}
             current_chat["is_group"] = True
             current_chat["group_name"] = chat.group_name

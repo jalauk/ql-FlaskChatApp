@@ -171,6 +171,13 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
     //     }
     // }, [currPage, wasLastList, prevPage, userList]);
 
+    function getGroupParticipantUsername(participants,from){
+        for(let i=0;i<participants.length;i++){
+            if(participants[i]._id.$oid === from)
+                return participants[i].username
+        }
+    }
+
     useEffect(()=> {
         if(!prevFetch){
             scrollRef.current?.scrollIntoView({behaviour:"smooth"})
@@ -242,7 +249,15 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
                                                 <img src="dist/media/img/women_avatar5.jpg" className="rounded-circle" alt="image"/>
                                             </figure>
                                             <div>
-                                                <h5>{currentUser._id.$oid===message.from? currentUser.username : currentChat.username}</h5>
+                                                <h5>{currentChat.is_group 
+                                                        ? 
+                                                            currentUser._id.$oid===message.from 
+                                                            ? 
+                                                                currentUser.username 
+                                                            : 
+                                                                getGroupParticipantUsername(currentChat.participants,message.from)
+                                                        : 
+                                                            currentUser._id.$oid===message.from? currentUser.username : currentChat.username}</h5>
                                                 <div className="time">{moment(message.time).format('lll')}<i className=
                                                     {
                                                         message.from === currentUser._id.$oid 
