@@ -6,11 +6,17 @@ import { useState,useEffect,useRef } from "react";
 function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatbarAfterSendingMessage}){
     const [messages, setMessages] = useState([])
     const scrollRef = useRef()
+    const listInnerRef = useRef();
+    const [page,setPage] = useState(1)
+    const [prevFetch,setPrevFetch] = useState(false)
+    useEffect(() => {
+        setPrevFetch(false)
+    },[currentChat])
 
     useEffect(() => {
         async function getAllMessages () {
             let messages_list = await axios.post(
-                "http://localhost:5000/api/message/get-all-message",
+                `http://localhost:5000/api/message/get-all-message?page=0`,
                 {
                     "room_id" : currentChat.room_id
                 },
@@ -101,6 +107,7 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
             tempMessage.push(data)
             setMessages(tempMessage)
             // console.log({data})
+            setPrevFetch(false)
             refectChangesOnChatbarAfterSendingMessage(data)
         })
       }
@@ -123,9 +130,52 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
         })
     },[])
 
+    const onScroll = async () => {
+        if (listInnerRef.current) {
+          const { scrollTop, scrollHeight, clientHeight } = listInnerRef.current;
+          console.log({scrollTop})
+          if (scrollTop== 0) {
+            
+            let messages_list = await axios.post(
+                `http://localhost:5000/api/message/get-all-message?page=${page}`,
+                {
+                    "room_id" : currentChat.room_id
+                },
+                {
+                    headers : {
+                        "Authorization" : `Bearer ${localStorage.getItem("access_token")}`
+                    },
+                    
+                }
+            )
+            setPrevFetch(true)
+            setMessages((prev) => [...messages_list.data.data,...prev])    
+            setPage((prev) => prev + 1);
+          }
+        }
+      };
+
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         const response = await axios.get(
+    //             `https://api.instantwebtools.net/v1/passenger?page=${currPage}&size=10`
+    //         );
+    //         if (!response.data.data.length) {
+    //             setWasLastList(true);
+    //             return;
+    //         }
+    //         setPrevPage(currPage);
+    //         setMessages([...messages, ...response.data.data]);
+    //     };
+    //     if (!wasLastList && prevPage !== currPage) {
+    //         fetchData();
+    //     }
+    // }, [currPage, wasLastList, prevPage, userList]);
 
     useEffect(()=> {
-      scrollRef.current?.scrollIntoView({behaviour:"smooth"})
+        if(!prevFetch){
+            scrollRef.current?.scrollIntoView({behaviour:"smooth"})
+        }
     },[messages]);
 
 
@@ -182,35 +232,36 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
             </div>
 
 
-            <div className="chat-body">
+            <div className="chat-body" onScroll={onScroll} ref={listInnerRef}>
                 <div className="messages">
-                    {
-                        messages.map((message,index) => {
-                            return (
-                                <div key={index} ref={scrollRef} className={`message-item ${currentUser._id.$oid===message.from ? "outgoing-message" : ""}`}>
-                                    <div className="message-avatar">
-                                        <figure className="avatar">
-                                            <img src="dist/media/img/women_avatar5.jpg" className="rounded-circle" alt="image"/>
-                                        </figure>
-                                        <div>
-                                            <h5>{currentUser._id.$oid===message.from? currentUser.username : currentChat.username}</h5>
-                                            <div className="time">{moment(message.time).format('lll')}<i className=
-                                                {
-                                                    message.from === currentUser._id.$oid 
-                                                    ? 
-                                                        message.seen_by.length > 0 ? 'ti-double-check text-info' : "" 
-                                                    : 
-                                                        ""
-                                                }></i></div>
+                        {
+                            messages.map((message,index) => {
+                                return (
+                                    <div key={index} ref={scrollRef} className={`message-item ${currentUser._id.$oid===message.from ? "outgoing-message" : ""}`}>
+                                        <div className="message-avatar">
+                                            <figure className="avatar">
+                                                <img src="dist/media/img/women_avatar5.jpg" className="rounded-circle" alt="image"/>
+                                            </figure>
+                                            <div>
+                                                <h5>{currentUser._id.$oid===message.from? currentUser.username : currentChat.username}</h5>
+                                                <div className="time">{moment(message.time).format('lll')}<i className=
+                                                    {
+                                                        message.from === currentUser._id.$oid 
+                                                        ? 
+                                                            message.seen_by.length > 0 ? 'ti-double-check text-info' : "" 
+                                                        : 
+                                                            ""
+                                                    }></i></div>
+                                            </div>
+                                        </div>
+                                        <div className="message-content">
+                                            {message.message}
                                         </div>
                                     </div>
-                                    <div className="message-content">
-                                        {message.message}
-                                    </div>
-                                </div>
-                            )
-                        })
-                    }
+                                )
+                            })
+                        }
+                    
                 </div>
             </div>
             <div className="chat-footer">
