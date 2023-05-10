@@ -2,8 +2,8 @@ import React,{useRef, useState} from "react";
 import { Link } from 'react-router-dom';
 import axios from "axios";
 
-function CreateGroup({chatList,currentUser}){
-    const hoverRef= useRef(null);
+function CreateGroup({chatList,currentUser,appendGroupInChatList}){
+    const closeModalRef= useRef(null);
     const selected=[];
     const handleSubmit  = async (e)=>{
         e.preventDefault();
@@ -25,9 +25,14 @@ function CreateGroup({chatList,currentUser}){
                 
             }
         )
+
+        if(response.data.data){
+            appendGroupInChatList(response.data.data)
+        }
+        closeModalRef.current.classList.remove("show");
     }
     return (
-        <div className="modal fade" id="newGroup" tabndex="-1" role="dialog" aria-hidden="true">
+        <div className="modal fade" id="newGroup" tabndex="-1" role="dialog" aria-hidden="true" ref={closeModalRef}>
             <div className="modal-dialog modal-dialog-centered modal-dialog-zoom" role="document">
                 <div className="modal-content">
                     <div className="modal-header">
@@ -54,7 +59,7 @@ function CreateGroup({chatList,currentUser}){
                             <p className="mb-2">The group members</p>
                             <div className="form-group">
                                 <div className="avatar-group">
-                                    <div className="userList" ref={hoverRef} >
+                                    <div className="userList"  >
                                         <select name="selectUser" multiple>    
                                             {
                                                 chatList.map((e,index)=>{
@@ -70,7 +75,7 @@ function CreateGroup({chatList,currentUser}){
                                 <textarea className="form-control" id="description"></textarea>
                             </div>
                                 <div className="modal-footer">
-                                    <button type="submit" className="btn btn-primary">Create Group</button>
+                                    <button type="submit" className="btn btn-primary" >Create Group</button>
                                 </div>
                         </form>
                     </div>  

@@ -128,7 +128,7 @@ def getAllChats(user_id):
             participant_list = []
             for participant in chat.participants:
                 if user_id != str(participant.id):
-                    print(str(participant.id))
+                    # print(str(participant.id))
                     participant_list.append({"_id": {
                                                         "$oid" : str(participant.id)
                                                     },
@@ -147,17 +147,19 @@ def getAllChats(user_id):
     return chat_list
 
 def createGroup(group_name,participants,user_id):
+    print("\n\n\n\n\nworking\n\n\n\n\n\n\n")
     room_id = str(uuid4())
     group = Chat(room_id=room_id,participants=participants,group_name=group_name,is_group=True)
     group.save()
     participants_list = []
     for participant in group.participants:
         if user_id != str(participant.id):
-            participants_list.append({"_id": {
-                                                "$oid" : str(participant.id)
-                                            },
-                                            "username":participant.username
-                                        })
+            participants_list.append({"_id": 
+                                        {
+                                            "$oid" : str(participant.id)
+                                        },
+                                        "username":participant.username
+                                    })
     data = {
         "_id" : {
             "$oid" : str(group.id)
@@ -167,6 +169,7 @@ def createGroup(group_name,participants,user_id):
         "message_time" : None,
         "participants" : participants_list,
         "room_id" : group.room_id,
+        "is_group" : True,
         "unread_count" : 0
     }
     return data

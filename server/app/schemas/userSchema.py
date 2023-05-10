@@ -29,7 +29,7 @@ login_schema = LoginSchema()
 
 class CreateGroup(Schema):
     group_name = fields.Str(required=True,validate=Length(min=3))
-    participants = fields.List(MongoId(),required=True)
+    participants = fields.List(MongoId(),required=True,validate=Length(min=3))
 
     class Meta:
         fields = ("group_name","participants")

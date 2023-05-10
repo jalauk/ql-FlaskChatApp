@@ -132,7 +132,6 @@ function ChatPage () {
 
     function refectChangesOnChatbarAfterSendingMessage(data) {
         const new_chat_list = structuredClone(chatList);
-        console.log("data : ",data.time," ",new Date(data.time))
         new_chat_list.forEach((chat,index) => {
             // console.log(index," : ",chat.message_time," ",new Date(chat.message_time))
             if(chat.room_id === data.room_id && currentUser._id.$oid===data.from){
@@ -150,11 +149,16 @@ function ChatPage () {
         setChatList(sorted_chat_list)
     }
 
+    function appendGroupInChatList(group_info){
+        const new_chat_list = structuredClone(chatList);
+        new_chat_list.push(group_info)
+        setChatList(new_chat_list)
+    }
 
 
     return (
         <div>
-            <CreateGroup chatList={chatList} currentUser={currentUser}/>
+            <CreateGroup chatList={chatList} currentUser={currentUser} appendGroupInChatList={appendGroupInChatList}/>
             <EditProfile/>
             <div className="layout">
                 <Navigation/>

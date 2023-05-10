@@ -3,9 +3,9 @@ import moment from 'moment'
 function ChatItem ({chat,index,changeCurrentChat,currentSelected}) {
 
   function formatingDate(date) {
-    // if(moment.duration(new Date()) == 1){
-    //   return moment.duration(new Date()).humanize() 
-    // }
+    current_date = new Date()
+    date = new Date(date)
+    console.log(current_date, " : ", date)
     return moment(date).format('LT')
   }
 
