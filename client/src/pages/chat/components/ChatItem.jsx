@@ -3,6 +3,9 @@ import moment from 'moment'
 function ChatItem ({chat,index,changeCurrentChat,currentSelected}) {
 
   function formatingDate(date) {
+    // if(moment.duration(new Date()) == 1){
+    //   return moment.duration(new Date()).humanize() 
+    // }
     return moment(date).format('LT')
   }
 
@@ -18,11 +21,19 @@ function ChatItem ({chat,index,changeCurrentChat,currentSelected}) {
                       : "avatar"
                   }
                 >
-                  <img
+                  {chat.is_group 
+                      ? 
+                          (<span className="avatar-title bg-warning bg-success rounded-circle">
+                              <i className="fa fa-users"></i> 
+                          </span>) 
+                      : 
+                          (<img src="dist/media/img/women_avatar5.jpg" className="rounded-circle" alt="image"/>)
+                  }
+                  {/* <img
                     src="dist/media/img/man_avatar1.jpg"
                     className="rounded-circle"
                     alt="image"
-                  />
+                  /> */}
                 </figure>
                 <div className="users-list-body">
                   <div>

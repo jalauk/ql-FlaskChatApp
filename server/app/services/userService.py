@@ -146,8 +146,27 @@ def getAllChats(user_id):
         chat_list.append(current_chat)
     return chat_list
 
-def createGroup(group_name,participants):
+def createGroup(group_name,participants,user_id):
     room_id = str(uuid4())
     group = Chat(room_id=room_id,participants=participants,group_name=group_name,is_group=True)
     group.save()
-    return True
+    participants_list = []
+    for participant in group.participants:
+        if user_id != str(participant.id):
+            participants_list.append({"_id": {
+                                                "$oid" : str(participant.id)
+                                            },
+                                            "username":participant.username
+                                        })
+    data = {
+        "_id" : {
+            "$oid" : str(group.id)
+        },
+        "group_name" : group.group_name,
+        "message" : None,
+        "message_time" : None,
+        "participants" : participants_list,
+        "room_id" : group.room_id,
+        "unread_count" : 0
+    }
+    return data

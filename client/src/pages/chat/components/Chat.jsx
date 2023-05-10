@@ -258,6 +258,7 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
                                                                 getGroupParticipantUsername(currentChat.participants,message.from)
                                                         : 
                                                             currentUser._id.$oid===message.from? currentUser.username : currentChat.username}</h5>
+                                                            
                                                 <div className="time">{moment(message.time).format('lll')}<i className=
                                                     {
                                                         message.from === currentUser._id.$oid 

@@ -49,5 +49,5 @@ def getAllChats():
 def createGroup():
     group_name = request.json["group_name"]
     participants = request.json["participants"]
-    data = userService.createGroup(group_name,participants)
-    return httpResponse(201,"Success",data)
+    data = userService.createGroup(group_name,participants,request.user_id)
+    return httpResponse(201,"Group Created!",data)    

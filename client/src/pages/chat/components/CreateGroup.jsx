@@ -13,12 +13,12 @@ function CreateGroup({chatList,currentUser}){
             selected.push(tempArray[i].value);
         }
         let response = await axios.post(
-            "http://localhost:5000/api/user/create-group"
-            ,{
+            "http://localhost:5000/api/user/create-group",
+            {
                 "participants" : selected,
                 "group_name" : e.target[0].value
-            }
-            ,{
+            },
+            {
                 headers : {
                     "Authorization" : `Bearer ${localStorage.getItem("access_token")}`
                 },
@@ -58,7 +58,7 @@ function CreateGroup({chatList,currentUser}){
                                         <select name="selectUser" multiple>    
                                             {
                                                 chatList.map((e,index)=>{
-                                                    return (<option value={e._id.$oid} key={index}>{e.username}</option> )
+                                                    return (e.is_group ? "" : <option value={e._id.$oid} key={index}>{e.username}</option> )
                                                 })
                                             }
                                         </select>
