@@ -50,4 +50,13 @@ def createGroup():
     group_name = request.json["group_name"]
     participants = request.json["participants"]
     data = userService.createGroup(group_name,participants,request.user_id)
-    return httpResponse(201,"Group Created!",data)    
+    return httpResponse(201,"Group Created!",data)
+
+@bp.patch("/edit-profile")
+@auth
+def editProfile():
+    print(request.get_json().get("name"))
+    data = request.get_json()
+
+    userService.editProfile(data,request.user_id)
+    return httpResponse(200,"Profile updated!")

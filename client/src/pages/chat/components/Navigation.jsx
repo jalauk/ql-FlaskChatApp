@@ -1,4 +1,4 @@
-function Navigation() {
+function Navigation({currentUser}) {
     return <nav className="navigation">
     <div className="nav-group">
         <ul>
@@ -74,7 +74,11 @@ function Navigation() {
             <li data-toggle="tooltip" title="User menu" data-placement="right">
                 <a href="login.html" data-toggle="dropdown">
                     <figure className="avatar">
-                        <img src="dist/media/img/women_avatar5.jpg" className="rounded-circle" alt="image"/>
+                        {currentUser.profile ? 
+                                <img src={currentUser.profile} className="rounded-circle" alt="image"/> 
+                            :
+                                <img src="dist/media/img/women_avatar5.jpg" className="rounded-circle" alt="image"/>
+                            }
                     </figure>
                 </a>
                 <div className="dropdown-menu">

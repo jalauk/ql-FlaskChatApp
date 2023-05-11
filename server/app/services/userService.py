@@ -40,6 +40,12 @@ def login(email,password):
         
         user = user[0].to_json()
         user = json.loads(user)
+        profile = None
+        name = None
+        if "profile" in user:
+            profile = user["profile"]
+        if "name" in user:
+            name = user["name"]
         return httpResponse(200,"Success",{
             "tokens" : {
                 "access_token":access_token,
@@ -47,7 +53,9 @@ def login(email,password):
             },
             "user" : {
                 "username" : user["username"],
-                "_id": user["_id"]
+                "_id": user["_id"],
+                "profile" : profile,
+                "name" : name
             }
         })
 
@@ -90,7 +98,7 @@ def getAllUsers(user_id):
     users = json.loads(users)
     for user in users:
         for key in list(user.keys()):
-            if key not in ["_id","username"]:
+            if key not in ["_id","username","profile"]:
                 del user[key]
     return users
 
@@ -113,6 +121,7 @@ def getAllChats(user_id):
                     current_chat["message"] = last_message.text if last_message else None
                     current_chat["_id"] = {"$oid" : str(participant.id)}
                     current_chat["username"] = participant.username
+                    current_chat["profile"] = participant.profile
                     current_chat["message_time"] = str(last_message.created_at) if last_message else None
                     current_chat["online"] = True if str(participant.id) in ONLINE_USER else False
                     current_chat["is_group"] = False
@@ -173,3 +182,20 @@ def createGroup(group_name,participants,user_id):
         "unread_count" : 0
     }
     return data
+
+def editProfile(data,user_id):
+    name = profile = None
+    user = User.objects(id=user_id)
+    if "name" in data:
+        name = data["name"]
+        user.update_one(set__name = name)
+    
+    if "profile" in data:
+        profile = data["profile"]
+        user.update_one(set__profile = profile)
+    
+    return True
+
+    
+
+    

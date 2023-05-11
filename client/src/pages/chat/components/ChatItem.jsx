@@ -7,8 +7,8 @@ function ChatItem ({chat,index,changeCurrentChat,currentSelected}) {
     date = new Date(date)
     if(current_date.getDate()-date.getDate()===1)
       return "yesterday"
-    else if(current_date.getDate()-date.getDate() > 1)
-      return date.getDate()
+    else if(current_date.getDate() - date.getDate() > 1)
+      return moment(date).format("LL")
     else
       return moment(date).format('LT')
   }
@@ -31,7 +31,7 @@ function ChatItem ({chat,index,changeCurrentChat,currentSelected}) {
                               <i className="fa fa-users"></i> 
                           </span>) 
                       : 
-                          (<img src="dist/media/img/women_avatar5.jpg" className="rounded-circle" alt="image"/>)
+                        chat.profile ? (<img src={chat.profile} className="rounded-circle" alt="image"/>) : (<img src="dist/media/img/women_avatar5.jpg" className="rounded-circle" alt="image"/>)
                   }
                   {/* <img
                     src="dist/media/img/man_avatar1.jpg"

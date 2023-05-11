@@ -47,10 +47,10 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
             socket.current.emit("create-room",{"user_id":currentUser._id.$oid,"friend_id":currentChat._id.$oid},(room_id) => {
                 currentChat.room_id = room_id
             })
+            setMessages([])
         }
         else{
             if(previousChat != undefined){ 
-                // console.log("previousChat : ",previousChat)
                 leaveRoom()
             }
 
@@ -215,7 +215,13 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
             <div className="chat-header">
                 <div className="chat-header-user">
                     <figure className="avatar">
-                        <img src="dist/media/img/man_avatar3.jpg" className="rounded-circle" alt="image"/>
+                        {
+                            currentChat.profile 
+                                ? 
+                                    <img src={currentChat.profile} className="rounded-circle" alt="image"/>
+                                : 
+                                    <img src="dist/media/img/man_avatar1.jpg" className="rounded-circle" alt="image"/>
+                        }
                     </figure>
                     <div>
                         <h5>{currentChat.is_group ? currentChat.group_name : currentChat.username}</h5>

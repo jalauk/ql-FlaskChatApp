@@ -165,8 +165,8 @@ function ChatPage () {
         <div>
             <CreateGroup chatList={chatList} currentUser={currentUser} appendGroupInChatList={appendGroupInChatList}/>
             <EditProfile/>
-            <div className="layout">
-                <Navigation/>
+            <div className="layout" >
+                <Navigation currentUser={currentUser}/>
                 <div className="content">
                     <div className="sidebar-group">
                         <ChatSidebar chatList={chatList} changeChat={handleChatChange}/>
