@@ -90,7 +90,7 @@ def joinRoom(data):
     chat_id = Chat.objects(room_id=data["room_id"]).first().id
     try:
         message_obj = Message.objects(chat_id=chat_id,sender__ne=data["from"]).update(set__seen_by=[data["from"]])
-        print(message_obj)
+        socketio.emit("message-seen",{"room_id":data["room_id"]},to=data["room_id"],include_self=False)
     except Exception as e:
         print(e)
     return ONLINE_USER

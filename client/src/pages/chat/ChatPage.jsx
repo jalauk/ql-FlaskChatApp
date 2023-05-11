@@ -64,7 +64,7 @@ function ChatPage () {
                 }
             )
             const sorted_chat_list = chat_list.data.data.sort(function(a, b){
-                console.log("sorting datetime : ",a," : ",typeof(a.message_time))
+                // console.log("sorting datetime : ",a," : ",typeof(a.message_time))
                 var dateA = new Date(a.message_time)
                 var dateB = new Date(b.message_time)
                 return dateA < dateB ? 1 : -1;
@@ -137,6 +137,11 @@ function ChatPage () {
             if(chat.room_id === data.room_id && currentUser._id.$oid===data.from){
                 chat.message = data.message
                 chat.unread_count = 0
+                chat.message_time = data.time
+            }
+            if(chat.room_id === data.room_id && currentUser._id.$oid!==data.from){
+                chat.message = data.message
+                // chat.unread_count = 0
                 chat.message_time = data.time
             }
         })

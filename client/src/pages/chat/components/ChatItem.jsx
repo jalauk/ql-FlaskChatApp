@@ -3,10 +3,14 @@ import moment from 'moment'
 function ChatItem ({chat,index,changeCurrentChat,currentSelected}) {
 
   function formatingDate(date) {
-    current_date = new Date()
+    const current_date = new Date()
     date = new Date(date)
-    console.log(current_date, " : ", date)
-    return moment(date).format('LT')
+    if(current_date.getDate()-date.getDate()===1)
+      return "yesterday"
+    else if(current_date.getDate()-date.getDate() > 1)
+      return date.getDate()
+    else
+      return moment(date).format('LT')
   }
 
     return (

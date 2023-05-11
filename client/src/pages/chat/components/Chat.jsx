@@ -104,6 +104,7 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
         socket.current.on("receive-message",(data) => {
             let tempMessage = [...messages]
             tempMessage.push(data)
+            // console.log("seen by : ",data.seen_by.length)
             setMessages(tempMessage)
             // console.log({data})
             setPrevFetch(false)
@@ -177,6 +178,30 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
                 return participants[i].username
         }
     }
+
+    function formatDate(date){
+        const current_date = new Date()
+        date = new Date(date)
+        if(current_date.getDate()-date.getDate()===1)
+            return `yesterday, ${moment(date).format('LT')}`
+        else if(current_date.getDate()-date.getDate() < 1)
+            return moment(date).format('LT')
+        else
+            return moment(date).format('lll')
+    }
+
+    useEffect(() => {
+        socket.current.on("message-seen",((data) => {
+            console.log("seen_messages event")
+            if(currentChat.room_id === data.room_id){
+                const seen_messages = structuredClone(messages);
+                seen_messages.forEach((message,index) => {
+                    message.seen_by = currentChat._id.$oid
+                })
+                setMessages(seen_messages)
+            }
+        }))
+    })
 
     useEffect(()=> {
         if(!prevFetch){
@@ -259,7 +284,7 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
                                                         : 
                                                             currentUser._id.$oid===message.from? currentUser.username : currentChat.username}</h5>
                                                             
-                                                <div className="time">{moment(message.time).format('lll')}<i className=
+                                                <div className="time">{formatDate(message.time)}<i className=
                                                     {
                                                         message.from === currentUser._id.$oid 
                                                         ? 
