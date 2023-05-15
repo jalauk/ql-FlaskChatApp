@@ -1,7 +1,7 @@
 import axios from "axios"
 import React,{useState} from "react"
 
-function EditProfile(){
+function EditProfile({currentUser}){
     const [image,setImage] = useState("")
     const [fullName,setFullName] = useState("")
     let formData={};
@@ -97,7 +97,7 @@ function EditProfile(){
                                     <div className="d-flex align-items-center">
                                         <div>
                                             <figure className="avatar mr-3 item-rtl">
-                                                <img src="dist/media/img/man_avatar4.jpg" className="rounded-circle"
+                                                <img src={currentUser.profile} className="rounded-circle"
                                                     alt="image"/>
                                             </figure>
                                         </div>
@@ -105,7 +105,7 @@ function EditProfile(){
                                             <input type="file" className="custom-file-input" id="customFile" onChange={(e) => setImage(e.target.files[0])}/>
                                             <label className="custom-file-label" htmlFor="customFile">Choose file</label>
                                         </div>
-                                        <button type="submit" className="btn btn-primary" onClick={submitImage}>Save</button>
+                                        <button type="submit" className="btn btn-primary mx-3" onClick={submitImage}>Save</button>
                                     </div>
                                 </div>
                                 {/* <form onSubmit={(e) => handleSubmit(e)}>

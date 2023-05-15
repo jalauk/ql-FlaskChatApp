@@ -1,16 +1,20 @@
 import React,{useRef, useState} from "react";
 import { Link } from 'react-router-dom';
 import axios from "axios";
+import MultipleSelectChip from "./Multiselect";
+
 
 function CreateGroup({chatList,currentUser,appendGroupInChatList}){
     const closeModalRef= useRef(null);
-    const selected=[];
+    
+    const [personName, setPersonName] = React.useState([]);
+
     const handleSubmit  = async (e)=>{
         e.preventDefault();
-        const tempArray =e.target[2].selectedOptions;
+        const selected=[];
         selected.push(currentUser._id.$oid)
-        for(let i= 0;i<tempArray.length;i++){
-            selected.push(tempArray[i].value);
+        for(let i=0;i<personName.length;i++){
+            selected.push(personName[i]._id.$oid)
         }
         let response = await axios.post(
             "http://localhost:5000/api/user/create-group",
@@ -30,6 +34,12 @@ function CreateGroup({chatList,currentUser,appendGroupInChatList}){
             appendGroupInChatList(response.data.data)
         }
         closeModalRef.current.classList.remove("show");
+    }
+
+    function handlePersonName(value){
+        setPersonName(
+            typeof value === 'string' ? value.split(',') : value,
+          );
     }
     return (
         <div className="modal fade" id="newGroup" tabndex="-1" role="dialog" aria-hidden="true" ref={closeModalRef}>
@@ -60,13 +70,14 @@ function CreateGroup({chatList,currentUser,appendGroupInChatList}){
                             <div className="form-group">
                                 <div className="avatar-group">
                                     <div className="userList"  >
-                                        <select name="selectUser" multiple>    
+                                        {/* <select name="selectUser" multiple>    
                                             {
                                                 chatList.map((e,index)=>{
                                                     return (e.is_group ? "" : <option value={e._id.$oid} key={index}>{e.username}</option> )
                                                 })
                                             }
-                                        </select>
+                                        </select> */}
+                                        <MultipleSelectChip chatList={chatList} personName={personName} handlePersonName={handlePersonName}/>
                                     </div>
                                 </div>
                             </div>

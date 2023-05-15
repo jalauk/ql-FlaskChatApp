@@ -277,8 +277,15 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
                                     <div key={index} ref={scrollRef} className={`message-item ${currentUser._id.$oid===message.from ? "outgoing-message" : ""}`}>
                                         <div className="message-avatar">
                                             <figure className="avatar">
-                                                <img src="dist/media/img/women_avatar5.jpg" className="rounded-circle" alt="image"/>
-                                            </figure>
+                                                {
+                                                    currentUser._id.$oid===message.from 
+                                                        ?
+                                                            <img src={currentUser.profile} className="rounded-circle" alt="image"/>  
+                                                        : 
+                                                            <img src={currentChat.profile} className="rounded-circle" alt="image"/> 
+
+                                                }
+                                           </figure>
                                             <div>
                                                 <h5>{currentChat.is_group 
                                                         ? 

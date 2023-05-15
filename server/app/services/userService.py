@@ -79,21 +79,42 @@ def resetToken(user_id,token):
         print(e.args)
         raise Exception(e)
     
+def getUser(user_id):
+    user = User.objects(id=user_id).first()
+    user = user.to_json()
+    user = json.loads(user)
+    profile = None
+    name = None    
+    if "profile" in user:
+        profile =  user["profile"]
+    if "name" in user:
+        name = user["name"]
+    return {
+        "name" : name,
+        "profile" : profile,
+        "username" : user["username"],
+        "_id" : {
+            "$oid" : user["_id"]["$oid"]
+        }
+    }
+
+    
 def getAllUsers(user_id):
-    chats = Chat.objects(participants=user_id).only("participants").exclude("id")
+    chats = Chat.objects(participants=user_id).only("participants","is_group").exclude("id")
     chats = chats.to_json()
     chats = json.loads(chats)
 
     #to remove existing chats
     chat_list = []
     for chat in chats:
+        if chat["is_group"]:
+            continue
         for participant in chat["participants"]:
             if participant["$oid"] != user_id:
                 chat_list.append(participant["$oid"])
     chat_list.append(user_id)
 
-
-    users = User.objects.filter(id__nin=chat_list)   
+    users = User.objects.filter(id__nin=chat_list)
     users = users.to_json()
     users = json.loads(users)
     for user in users:

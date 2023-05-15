@@ -28,7 +28,13 @@ def login():
 @bp.get("/reset-token")
 @refreshAuth
 def resetToken():
-    data = userService.resetToken(request.user_id,request.token,)
+    data = userService.resetToken(request.user_id,request.token)
+    return httpResponse(200,"Success",data)
+
+@bp.get("/get-user")
+@auth
+def getUser():
+    data = userService.getUser(request.user_id)
     return httpResponse(200,"Success",data)
 
 @bp.get("/get-all-users")

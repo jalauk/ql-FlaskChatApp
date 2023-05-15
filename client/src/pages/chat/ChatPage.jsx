@@ -20,14 +20,29 @@ function ChatPage () {
     const [currentUser,setCurrentUser] = useState(JSON.parse(localStorage.getItem("user")))
 
     // useEffect(()=>{
-    //     async function settingCurrentUser(){
+    //     async function getUser(){
     //         setCurrentUser())
     //     }
     //     settingCurrentUser();
     // },[])
 
     useEffect(() => {
-        socket.current = io("http://localhost:5000")
+        async function getUser() {
+            const response = await axios.get(
+                `${process.env.REACT_APP_BASE_URL}/api/user/get-user`,
+                {
+                    headers: {
+                        "Authorization" : `Bearer ${localStorage.getItem("access_token")}`
+                    }
+                }
+            )
+            localStorage.setItem("user",JSON.stringify(response.data.data))
+        }
+        getUser()
+    },[])
+
+    useEffect(() => {
+        socket.current = io(`${process.env.REACT_APP_BASE_URL}`)
         socket.current.on("connect",() => {
             socket.current.emit("add-user",currentUser._id.$oid)
         })
@@ -38,9 +53,10 @@ function ChatPage () {
 
     useEffect(()=>{
         async function settingFriendsList(){
+            console.log("checking : ",process.env.REACT_APP_BASE_URL)
             let access_token = localStorage.getItem("access_token")
             const friends_list = await axios.get(
-                "http://localhost:5000/api/user/get-all-users",
+                `${process.env.REACT_APP_BASE_URL}/api/user/get-all-users`,
                 {
                     headers: {
                         "Authorization" : `Bearer ${access_token}`
@@ -164,7 +180,7 @@ function ChatPage () {
     return (
         <div>
             <CreateGroup chatList={chatList} currentUser={currentUser} appendGroupInChatList={appendGroupInChatList}/>
-            <EditProfile/>
+            <EditProfile currentUser={currentUser}/>
             <div className="layout" >
                 <Navigation currentUser={currentUser}/>
                 <div className="content">
@@ -182,7 +198,7 @@ function ChatPage () {
                         (<Chat currentChat={currentChat} currentUser={currentUser} socket={socket} previousChat={previousChat} refectChangesOnChatbarAfterSendingMessage={refectChangesOnChatbarAfterSendingMessage}/>)
 
                     }
-                    <SidebarGroup/>
+                    <SidebarGroup currentUser={currentUser}/>
                 </div>
             </div>
         </div>
