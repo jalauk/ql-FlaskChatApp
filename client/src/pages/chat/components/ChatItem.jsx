@@ -31,7 +31,7 @@ function ChatItem ({chat,index,changeCurrentChat,currentSelected}) {
                               <i className="fa fa-users"></i> 
                           </span>) 
                       : 
-                        chat.profile ? (<img src={chat.profile} className="rounded-circle" alt="image"/>) : (<img src="dist/media/img/women_avatar5.jpg" className="rounded-circle" alt="image"/>)
+                        chat?.profile ? (<img src={chat?.profile} className="rounded-circle" alt="image"/>) : (<img src="dist/media/img/women_avatar5.jpg" className="rounded-circle" alt="image"/>)
                   }
                   {/* <img
                     src="dist/media/img/man_avatar1.jpg"

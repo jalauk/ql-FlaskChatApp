@@ -1,9 +1,15 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState,useLayoutEffect } from "react";
 import axios from "axios";
 
 function Login() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if(localStorage.getItem("user")){
+      navigate("/chat")
+    }
+  },[])
 
   const [values, setValues] = useState({
     email: "",

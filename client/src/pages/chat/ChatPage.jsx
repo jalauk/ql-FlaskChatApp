@@ -4,27 +4,35 @@ import Chat from "./components/Chat"
 import Archived from "./components/Archived";
 import Favorites from "./components/Favorites";
 import Navigation from "./components/Navigation";
-import { useState,useEffect,useRef } from "react";
+import { useState,useEffect,useRef,useLayoutEffect } from "react";
 import EditProfile from "./components/EditProfile";
 import ChatSidebar from "./components/ChatSidebar";
 import CreateGroup from "./components/CreateGroup";
 import SidebarGroup from "./components/SidebarGroup";
 import FriendsSidebar from "./components/FriendsSidebar";
+import { redirect, useNavigate } from 'react-router-dom';
 
 function ChatPage () {
     const socket = useRef();
+    const navigate = useNavigate();
     const [chatList,setChatList] = useState([])
+    const [isLoggedIn,setIsLoggedIn] = useState(false)
     const [friendsList,setFriendsList] = useState([])
     const [currentChat,setCurrentChat] = useState(undefined)
     const [previousChat,setPreviousChat] = useState(undefined)
     const [currentUser,setCurrentUser] = useState(JSON.parse(localStorage.getItem("user")))
 
-    // useEffect(()=>{
-    //     async function getUser(){
-    //         setCurrentUser())
-    //     }
-    //     settingCurrentUser();
-    // },[])
+    useEffect(() => {
+        function settingCurUser(){
+            if (!localStorage.getItem("user")){
+                navigate("/");
+            }
+            else{
+                setIsLoggedIn(true)
+            }
+        }
+        settingCurUser()
+      }, [isLoggedIn]);
 
     useEffect(() => {
         async function getUser() {
@@ -36,16 +44,20 @@ function ChatPage () {
                     }
                 }
             )
-            localStorage.setItem("user",JSON.stringify(response.data.data))
+            if(localStorage.getItem("user"))
+                localStorage.setItem("user",JSON.stringify(response.data.data))
         }
-        getUser()
+        if(isLoggedIn)
+            getUser()
     },[])
 
     useEffect(() => {
-        socket.current = io(`${process.env.REACT_APP_BASE_URL}`)
-        socket.current.on("connect",() => {
-            socket.current.emit("add-user",currentUser._id.$oid)
-        })
+        if(isLoggedIn){    
+            socket.current = io(`${process.env.REACT_APP_BASE_URL}`)
+            socket.current.on("connect",() => {
+                socket.current.emit("add-user",currentUser._id.$oid)
+            })
+        }
         // socket.current.on("disconnect",()=>{
         //     socket.current.emit("offline",currentUser._id.$oid,(data) => alert(data))
         // })
@@ -65,7 +77,8 @@ function ChatPage () {
             )
             setFriendsList(friends_list.data.data)
         }
-        settingFriendsList()
+        if(isLoggedIn)
+            settingFriendsList()
     },[currentChat])
 
     useEffect(()=>{
@@ -87,7 +100,9 @@ function ChatPage () {
             })
             setChatList(sorted_chat_list)
         }
-        settingChatList()
+
+        if(isLoggedIn)
+            settingChatList()
     },[currentChat])
 
     const handleChatChange = (chat) => {
@@ -96,20 +111,18 @@ function ChatPage () {
     }
 
     useEffect(() => {
-        socket.current.on("user-online",(data) => {
-            const temp = structuredClone(chatList)
-            for(let i=0;i<temp.length;i++){
-                // console.log("inside for")
-                // console.log(data," ",temp[i]._id.$oid)
-                if(temp[i]._id.$oid === data)
-                {
-                    // console.log("inside if")
-                    temp[i].online = true
+        if(isLoggedIn){    
+            socket.current.on("user-online",(data) => {
+                const temp = structuredClone(chatList)
+                for(let i=0;i<temp.length;i++){
+                    if(temp[i]._id.$oid === data)
+                    {
+                        temp[i].online = true
+                    }
                 }
-            }
-            // console.log({temp});
-            setChatList(temp)
-        })
+                setChatList(temp)
+            })
+        }
 
         // socket.current.on("user-offline",(data) => {
         //     alert("disconnecting")
@@ -125,25 +138,27 @@ function ChatPage () {
     // console.log({chatList});
 
     useEffect(() => {
-        socket.current.on(
-            "unread-count",
-            (data) => {
-                const new_chat_list = structuredClone(chatList);
-                new_chat_list.forEach((chat,index) => {
-                    if(chat.room_id === data.room_id){
-                        chat.message = data.message
-                        chat.unread_count = data.unread_count
-                        chat.message_time = data.time
-                    }
+        if(isLoggedIn){
+            socket.current.on(
+                "unread-count",
+                (data) => {
+                    const new_chat_list = structuredClone(chatList);
+                    new_chat_list.forEach((chat,index) => {
+                        if(chat.room_id === data.room_id){
+                            chat.message = data.message
+                            chat.unread_count = data.unread_count
+                            chat.message_time = data.time
+                        }
+                    })
+                    const sorted_chat_list = new_chat_list.sort(function(a, b){
+                        var dateA = new Date(a.message_time)
+                        var dateB = new Date(b.message_time)
+                        // console.log(a.message_time," : ",dateA," and ",b.message_time," : ",dateB);
+                        return dateA < dateB ? 1 : -1;
+                    })
+                    setChatList(new_chat_list)
                 })
-                const sorted_chat_list = new_chat_list.sort(function(a, b){
-                    var dateA = new Date(a.message_time)
-                    var dateB = new Date(b.message_time)
-                    // console.log(a.message_time," : ",dateA," and ",b.message_time," : ",dateB);
-                    return dateA < dateB ? 1 : -1;
-                })
-                setChatList(new_chat_list)
-            })
+        }
     },[chatList])
 
     function refectChangesOnChatbarAfterSendingMessage(data) {

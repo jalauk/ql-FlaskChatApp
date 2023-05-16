@@ -155,23 +155,6 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
         }
       };
 
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         const response = await axios.get(
-    //             `https://api.instantwebtools.net/v1/passenger?page=${currPage}&size=10`
-    //         );
-    //         if (!response.data.data.length) {
-    //             setWasLastList(true);
-    //             return;
-    //         }
-    //         setPrevPage(currPage);
-    //         setMessages([...messages, ...response.data.data]);
-    //     };
-    //     if (!wasLastList && prevPage !== currPage) {
-    //         fetchData();
-    //     }
-    // }, [currPage, wasLastList, prevPage, userList]);
-
     function getGroupParticipantUsername(participants,from){
         for(let i=0;i<participants.length;i++){
             if(participants[i]._id.$oid === from)
@@ -216,9 +199,9 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
                 <div className="chat-header-user">
                     <figure className="avatar">
                         {
-                            currentChat.profile 
+                            currentChat?.profile 
                                 ? 
-                                    <img src={currentChat.profile} className="rounded-circle" alt="image"/>
+                                    <img src={currentChat?.profile} className="rounded-circle" alt="image"/>
                                 : 
                                     <img src="dist/media/img/man_avatar1.jpg" className="rounded-circle" alt="image"/>
                         }
@@ -280,9 +263,9 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
                                                 {
                                                     currentUser._id.$oid===message.from 
                                                         ?
-                                                            <img src={currentUser.profile} className="rounded-circle" alt="image"/>  
+                                                            <img src={currentUser?.profile} className="rounded-circle" alt="image"/>  
                                                         : 
-                                                            <img src={currentChat.profile} className="rounded-circle" alt="image"/> 
+                                                            <img src={currentChat?.profile} className="rounded-circle" alt="image"/> 
 
                                                 }
                                            </figure>
