@@ -4,13 +4,13 @@ import Chat from "./components/Chat"
 import Archived from "./components/Archived";
 import Favorites from "./components/Favorites";
 import Navigation from "./components/Navigation";
-import { useState,useEffect,useRef,useLayoutEffect } from "react";
+import { useState,useEffect,useRef } from "react";
 import EditProfile from "./components/EditProfile";
 import ChatSidebar from "./components/ChatSidebar";
 import CreateGroup from "./components/CreateGroup";
 import SidebarGroup from "./components/SidebarGroup";
 import FriendsSidebar from "./components/FriendsSidebar";
-import { redirect, useNavigate } from 'react-router-dom';
+import {useNavigate } from 'react-router-dom';
 
 function ChatPage () {
     const socket = useRef();
@@ -61,11 +61,10 @@ function ChatPage () {
         // socket.current.on("disconnect",()=>{
         //     socket.current.emit("offline",currentUser._id.$oid,(data) => alert(data))
         // })
-    },[])
+    },[isLoggedIn])
 
     useEffect(()=>{
         async function settingFriendsList(){
-            console.log("checking : ",process.env.REACT_APP_BASE_URL)
             let access_token = localStorage.getItem("access_token")
             const friends_list = await axios.get(
                 `${process.env.REACT_APP_BASE_URL}/api/user/get-all-users`,
@@ -79,7 +78,7 @@ function ChatPage () {
         }
         if(isLoggedIn)
             settingFriendsList()
-    },[currentChat])
+    },[currentChat,isLoggedIn])
 
     useEffect(()=>{
         async function settingChatList(){
@@ -93,7 +92,6 @@ function ChatPage () {
                 }
             )
             const sorted_chat_list = chat_list.data.data.sort(function(a, b){
-                // console.log("sorting datetime : ",a," : ",typeof(a.message_time))
                 var dateA = new Date(a.message_time)
                 var dateB = new Date(b.message_time)
                 return dateA < dateB ? 1 : -1;
@@ -103,7 +101,7 @@ function ChatPage () {
 
         if(isLoggedIn)
             settingChatList()
-    },[currentChat])
+    },[currentChat,isLoggedIn])
 
     const handleChatChange = (chat) => {
         setPreviousChat(currentChat)
@@ -134,7 +132,7 @@ function ChatPage () {
         //     })
         //     setChatList(disconnect_list)
         // })
-    },[chatList])
+    },[chatList,isLoggedIn])
     // console.log({chatList});
 
     useEffect(() => {
@@ -143,28 +141,39 @@ function ChatPage () {
                 "unread-count",
                 (data) => {
                     const new_chat_list = structuredClone(chatList);
+                    let room_exist = false
                     new_chat_list.forEach((chat,index) => {
                         if(chat.room_id === data.room_id){
                             chat.message = data.message
                             chat.unread_count = data.unread_count
                             chat.message_time = data.time
+                            room_exist = true
                         }
                     })
+                    if(!room_exist){
+                        console.log("workinh")
+                        socket.current.emit(
+                            "get-room-detail",
+                            {
+                                room_id:data.room_id,
+                                user_id:currentUser._id.$oid
+                            },
+                            (data) => new_chat_list.push(data)
+                        )
+                    }
                     const sorted_chat_list = new_chat_list.sort(function(a, b){
                         var dateA = new Date(a.message_time)
                         var dateB = new Date(b.message_time)
-                        // console.log(a.message_time," : ",dateA," and ",b.message_time," : ",dateB);
                         return dateA < dateB ? 1 : -1;
                     })
                     setChatList(new_chat_list)
                 })
         }
-    },[chatList])
+    },[chatList,isLoggedIn])
 
     function refectChangesOnChatbarAfterSendingMessage(data) {
         const new_chat_list = structuredClone(chatList);
         new_chat_list.forEach((chat,index) => {
-            // console.log(index," : ",chat.message_time," ",new Date(chat.message_time))
             if(chat.room_id === data.room_id && currentUser._id.$oid===data.from){
                 chat.message = data.message
                 chat.unread_count = 0
@@ -172,14 +181,12 @@ function ChatPage () {
             }
             if(chat.room_id === data.room_id && currentUser._id.$oid!==data.from){
                 chat.message = data.message
-                // chat.unread_count = 0
                 chat.message_time = data.time
             }
         })
         const sorted_chat_list = new_chat_list.sort(function(a, b){
             var dateA = new Date(a.message_time)
             var dateB = new Date(b.message_time)
-            // console.log(a.message_time," : ",dateA," and ",b.message_time," : ",dateB);
             return dateA < dateB ? 1 : -1;
         })
         setChatList(sorted_chat_list)

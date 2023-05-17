@@ -70,13 +70,6 @@ function CreateGroup({chatList,currentUser,appendGroupInChatList}){
                             <div className="form-group">
                                 <div className="avatar-group">
                                     <div className="userList"  >
-                                        {/* <select name="selectUser" multiple>    
-                                            {
-                                                chatList.map((e,index)=>{
-                                                    return (e.is_group ? "" : <option value={e._id.$oid} key={index}>{e.username}</option> )
-                                                })
-                                            }
-                                        </select> */}
                                         <MultipleSelectChip chatList={chatList} personName={personName} handlePersonName={handlePersonName}/>
                                     </div>
                                 </div>

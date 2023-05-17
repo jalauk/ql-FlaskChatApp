@@ -75,12 +75,18 @@ def addUser(user_id):
     
 @socketio.on("create-room")
 def createRoom(data):
-    room_id = str(uuid4())
-    participants = []
-    participants.append(data["user_id"])
-    participants.append(data["friend_id"])
-    chat = Chat(room_id=room_id,participants=participants)
-    chat.save()
+    try:
+        room_id = str(uuid4())
+        participants = []
+        participants.append(data["user_id"])
+        participants.append(data["friend_id"])
+        chat = Chat(room_id=room_id,participants=participants)
+        chat.save()
+        join_room(room_id)
+        ONLINE_USER[data["user_id"]]["room_id"] = room_id
+        print("\n\n\n\ncreate room online user : \n\n\n\n\n\n\n",ONLINE_USER)
+    except Exception as e:
+        print(e)
     return room_id
 
 @socketio.on("join-room")
@@ -91,12 +97,14 @@ def joinRoom(data):
     try:
         message_obj = Message.objects(chat_id=chat_id,sender__ne=data["from"]).update(set__seen_by=[data["from"]])
         socketio.emit("message-seen",{"room_id":data["room_id"]},to=data["room_id"],include_self=False)
+        print("\n\n\n\nonline user : \n\n\n\n\n\n\n",ONLINE_USER)
     except Exception as e:
         print(e)
     return ONLINE_USER
 
 @socketio.on("send-message")
 def sendMessage(data):
+    print("\n\n\n\n\n\nsent data : \n\n\n\n",data)
     chat_id = Chat.objects(room_id=data["room_id"]).first().id
     try:
         if (data["to"] in ONLINE_USER.keys()):
@@ -113,9 +121,11 @@ def sendMessage(data):
                 message_obj = Message(chat_id=str(chat_id),sender=data["from"],text=data["message"],created_at=datetime.now(),seen_by=[])
         else:
             seen_by=[]
+            print("other user is not online")
             message_obj = Message(chat_id=str(chat_id),sender=data["from"],text=data["message"],created_at=datetime.now(),seen_by=[])
             
         message_obj.save()
+        
         socketio.emit("receive-message",{"message" : data["message"],"from" : data["from"],"time":str(datetime.now()),"seen_by":seen_by,"room_id":data["room_id"]},to=data["room_id"])
     except Exception as e:
         raise e
@@ -124,6 +134,31 @@ def sendMessage(data):
 @socketio.on("is-typing")
 def isTyping(data):
     socketio.emit("typing",data,to=data["room_id"])
+
+@socketio.on("get-room-detail")
+def getRoomDetail(data):
+    current_chat = {}
+    chat = Chat.objects(room_id=data["room_id"]).first()
+    for participant in chat.participants:
+        if data["user_id"] != str(participant.id):
+            messages = Message.objects(chat_id=chat.id)
+            last_message = None
+            unread_count = 0
+            if messages:
+                last_message = messages.order_by("-created_at").first()
+                unread_count = len(messages.filter(sender__ne=data["user_id"],seen_by__size=0))
+            
+            current_chat["message"] = last_message.text if last_message else None
+            current_chat["_id"] = {"$oid" : str(participant.id)}
+            current_chat["username"] = participant.username
+            current_chat["profile"] = participant.profile
+            current_chat["message_time"] = str(last_message.created_at) if last_message else None
+            current_chat["online"] = True if str(participant.id) in ONLINE_USER else False
+            current_chat["is_group"] = False
+            current_chat["unread_count"] = unread_count
+    
+    return current_chat
+
 
 @socketio.on("leave-room")
 def leaveRoom(data):

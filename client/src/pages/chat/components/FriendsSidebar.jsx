@@ -1,7 +1,6 @@
 import { useState } from "react";
 
 function FriendsSidebar({friendsList,changeChat}){
-    console.log("friendsList inside sidebar : ",friendsList)
     const [currentSelected,setCurrentSelected] = useState(undefined)
 
     const changeCurrentChat = (index,contact) => {
@@ -41,7 +40,7 @@ function FriendsSidebar({friendsList,changeChat}){
                                         ? 
                                             <img src={friend?.profile} className="rounded-circle" alt="image"/>
                                         : 
-                                            <img src="dist/media/img/man_avatar1.jpg" className="rounded-circle" alt="image"/>
+                                            <img src="dist/media/img/profile-icon.webp" className="rounded-circle" alt="image"/>
                                 }
                             </figure>
                         </div>

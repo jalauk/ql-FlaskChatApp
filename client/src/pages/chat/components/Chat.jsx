@@ -41,11 +41,12 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
 
         if(!("room_id" in currentChat)){
             if(previousChat != undefined){
+                alert("leave room")
                 leaveRoom()
             }
-            console.log("previousChat : ",previousChat)
             socket.current.emit("create-room",{"user_id":currentUser._id.$oid,"friend_id":currentChat._id.$oid},(room_id) => {
                 currentChat.room_id = room_id
+                console.log("room_id : ",room_id)
             })
             setMessages([])
         }
@@ -78,7 +79,7 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
                 "from" : currentUser._id.$oid,
                 "to" : currentChat._id.$oid,
                 "message" : message
-            })
+            },(data) => console.log("sendmessage : ", {data}))
 
             // socket.current.on("receive-message",(data) => {
             //     console.log("messages1 : ",messages)
@@ -102,11 +103,10 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
     useEffect(()=>{
       if(socket.current) {
         socket.current.on("receive-message",(data) => {
+            console.log("receives-message",data)
             let tempMessage = [...messages]
             tempMessage.push(data)
-            // console.log("seen by : ",data.seen_by.length)
             setMessages(tempMessage)
-            // console.log({data})
             setPrevFetch(false)
             refectChangesOnChatbarAfterSendingMessage(data)
         })
@@ -133,7 +133,6 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
     const onScroll = async () => {
         if (listInnerRef.current) {
           const { scrollTop, scrollHeight, clientHeight } = listInnerRef.current;
-          console.log({scrollTop})
           if (scrollTop== 0) {
             
             let messages_list = await axios.post(
@@ -175,7 +174,6 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
 
     useEffect(() => {
         socket.current.on("message-seen",((data) => {
-            console.log("seen_messages event")
             if(currentChat.room_id === data.room_id){
                 const seen_messages = structuredClone(messages);
                 seen_messages.forEach((message,index) => {
@@ -199,11 +197,16 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
                 <div className="chat-header-user">
                     <figure className="avatar">
                         {
-                            currentChat?.profile 
-                                ? 
-                                    <img src={currentChat?.profile} className="rounded-circle" alt="image"/>
-                                : 
-                                    <img src="dist/media/img/man_avatar1.jpg" className="rounded-circle" alt="image"/>
+                            currentChat?.is_group ?
+                                <span className="avatar-title bg-warning bg-success rounded-circle">
+                                    <i className="fa fa-users"></i> 
+                                </span>
+                            :
+                                currentChat?.profile 
+                                    ? 
+                                        <img src={currentChat?.profile} className="rounded-circle" alt="image"/>
+                                    : 
+                                        <img src="dist/media/img/profile-icon.webp" className="rounded-circle" alt="image"/>
                         }
                     </figure>
                     <div>
@@ -263,9 +266,9 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
                                                 {
                                                     currentUser._id.$oid===message.from 
                                                         ?
-                                                            <img src={currentUser?.profile} className="rounded-circle" alt="image"/>  
+                                                            <img src={currentUser?.profile ? currentUser?.profile : "dist/media/img/profile-icon.webp"} className="rounded-circle" alt="image"/>  
                                                         : 
-                                                            <img src={currentChat?.profile} className="rounded-circle" alt="image"/> 
+                                                            <img src={currentChat?.profile ? currentChat?.profile : "dist/media/img/profile-icon.webp"} className="rounded-circle" alt="image"/> 
 
                                                 }
                                            </figure>
