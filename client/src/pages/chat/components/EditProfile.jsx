@@ -1,11 +1,14 @@
 import axios from "axios"
 import React,{useState} from "react"
 
-function EditProfile({currentUser}){
+function EditProfile({currentUser,updateImage}){
     const [image,setImage] = useState("")
     const [fullName,setFullName] = useState("")
 
+    const [isLoading, setLoading] = useState(false)
+
     const submitImage = async () => {
+        setLoading(true)
         const data = new FormData()
         data.append("file",image)
         data.append("upload_preset","uuxu9eun")
@@ -18,7 +21,7 @@ function EditProfile({currentUser}){
         })
 
         const backendRes = await axios.patch(
-            `http://localhost:5000/api/user/edit-profile`
+            `${process.env.REACT_APP_BASE_URL}/api/user/edit-profile`
             ,{"profile":response.data.url,"name":fullName},
             {
                 headers : {
@@ -26,7 +29,10 @@ function EditProfile({currentUser}){
                 },
                 
             }
-        )        
+        )
+        
+        updateImage(response.data.url)
+        setLoading(false)
     }
 
     return (
@@ -41,7 +47,8 @@ function EditProfile({currentUser}){
                             <i className="ti-close"></i>
                         </button>
                     </div>
-                    <div className="modal-body">
+                    {
+                        isLoading ? <div className="loaderComponent"><img src="dist/media/loader.gif" alt="loader" /></div> :<div className="modal-body">
                         <div className="tab-content">
                             <div className="tab-pane show active" id="personal" role="tabpanel">
                                 <div className="form-group">
@@ -78,6 +85,7 @@ function EditProfile({currentUser}){
                             </div>
                         </div>
                     </div>
+                    }
                     
                 </div>
             </div>

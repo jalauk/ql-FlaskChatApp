@@ -16,7 +16,7 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
     useEffect(() => {
         async function getAllMessages () {
             let messages_list = await axios.post(
-                `http://localhost:5000/api/message/get-all-message?page=0`,
+                `${process.env.REACT_APP_BASE_URL}/api/message/get-all-message?page=0`,
                 {
                     "room_id" : currentChat.room_id
                 },
@@ -41,7 +41,6 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
 
         if(!("room_id" in currentChat)){
             if(previousChat != undefined){
-                alert("leave room")
                 leaveRoom()
             }
             socket.current.emit("create-room",{"user_id":currentUser._id.$oid,"friend_id":currentChat._id.$oid},(room_id) => {
@@ -134,9 +133,9 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
         if (listInnerRef.current) {
           const { scrollTop, scrollHeight, clientHeight } = listInnerRef.current;
           if (scrollTop== 0) {
-            
+
             let messages_list = await axios.post(
-                `http://localhost:5000/api/message/get-all-message?page=${page}`,
+                `${process.env.REACT_APP_BASE_URL}/api/message/get-all-message?page=${page}`,
                 {
                     "room_id" : currentChat.room_id
                 },
@@ -147,6 +146,7 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
                     
                 }
             )
+            console.log(messages_list)
             setPrevFetch(true)
             setMessages((prev) => [...messages_list.data.data,...prev])    
             setPage((prev) => prev + 1);

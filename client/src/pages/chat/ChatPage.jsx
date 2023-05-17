@@ -49,7 +49,7 @@ function ChatPage () {
         }
         if(isLoggedIn)
             getUser()
-    },[])
+    },[currentUser])
 
     useEffect(() => {
         if(isLoggedIn){    
@@ -82,9 +82,11 @@ function ChatPage () {
 
     useEffect(()=>{
         async function settingChatList(){
+            console.log({chatList})
+            console.log({currentChat})
             let access_token = localStorage.getItem("access_token")
             const chat_list = await axios.get(
-                "http://localhost:5000/api/user/get-all-chats",
+                `${process.env.REACT_APP_BASE_URL}/api/user/get-all-chats`,
                 {
                     headers: {
                         "Authorization" : `Bearer ${access_token}`
@@ -97,6 +99,7 @@ function ChatPage () {
                 return dateA < dateB ? 1 : -1;
             })
             setChatList(sorted_chat_list)
+            console.log({chatList})
         }
 
         if(isLoggedIn)
@@ -198,13 +201,19 @@ function ChatPage () {
         setChatList(new_chat_list)
     }
 
+    function updateImage(imageURL){
+        let update_current_user = structuredClone(currentUser)
+        update_current_user.profile = imageURL
+        setCurrentUser(update_current_user)
+    }
+
 
     return (
         <div>
             <CreateGroup chatList={chatList} currentUser={currentUser} appendGroupInChatList={appendGroupInChatList}/>
-            <EditProfile currentUser={currentUser}/>
+            <EditProfile currentUser={currentUser} updateImage={updateImage}/>
             <div className="layout" >
-                <Navigation currentUser={currentUser}/>
+                <Navigation currentUser={currentUser} />
                 <div className="content">
                     <div className="sidebar-group">
                         <ChatSidebar chatList={chatList} changeChat={handleChatChange}/>

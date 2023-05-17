@@ -27,3 +27,10 @@ code {
 .displayBlock {
   display: block;
 } */
+
+.loaderComponent{
+  min-height:300px;
+}
+.loaderComponent img{
+  width: -webkit-fill-available;
+}

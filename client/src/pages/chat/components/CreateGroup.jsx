@@ -17,7 +17,7 @@ function CreateGroup({chatList,currentUser,appendGroupInChatList}){
             selected.push(personName[i]._id.$oid)
         }
         let response = await axios.post(
-            "http://localhost:5000/api/user/create-group",
+            `${process.env.REACT_APP_BASE_URL}/api/user/create-group`,
             {
                 "participants" : selected,
                 "group_name" : e.target[0].value

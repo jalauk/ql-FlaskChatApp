@@ -61,8 +61,6 @@ def createGroup():
 @bp.patch("/edit-profile")
 @auth
 def editProfile():
-    print(request.get_json().get("name"))
     data = request.get_json()
-
     userService.editProfile(data,request.user_id)
     return httpResponse(200,"Profile updated!")

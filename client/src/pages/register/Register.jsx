@@ -22,7 +22,7 @@ function Register() {
   const handleSubmit = async(e) => {
     e.preventDefault();
     const {username,email,password} = values;
-    const {data} = await axios.post("http://localhost:5000/api/user/signup",{username,email,password});
+    const {data} = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/user/signup`,{username,email,password});
     console.log(data)
     if (data.status === false) {
       alert(data.data.message);

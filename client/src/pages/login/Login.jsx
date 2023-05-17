@@ -19,13 +19,12 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { username, email, password } = values;
-    const { data } = await axios.post("http://localhost:5000/api/user/login", {
+    const { data } = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/user/login`, {
       username,
       email,
       password,
     });
     if (data.status === false) {
-        console.log(data.data)
       alert(data.data.message);
     }
     if (data.status === true) {
