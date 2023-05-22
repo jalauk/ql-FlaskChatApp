@@ -1,5 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState,useLayoutEffect } from "react";
+import {ToastContainer,toast} from 'react-toastify'
+import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 
 function Login() {
@@ -17,6 +19,14 @@ function Login() {
     password: "",
   });
 
+  const toastOptions = {
+    position: "bottom-right",
+    autoClose: 8000,
+    pauseOnHover: true,
+    draggable: true,
+    theme: "dark",
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { username, email, password } = values;
@@ -26,7 +36,15 @@ function Login() {
       password,
     });
     if (data.status === false) {
-      alert(data.data.message);
+      if(data.code === 311)
+      {
+        const key = Object.keys(data.data.message)
+        for(let i=0;i<key.length;i++)
+          toast.error(data.data.message[key[i]], toastOptions);
+      }
+      else{
+        toast.error(data.data.message, toastOptions);
+      }
     }
     if (data.status === true) {
       localStorage.setItem("access_token",data.data.tokens.access_token)
@@ -41,6 +59,7 @@ function Login() {
   };
 
   return (
+    <>
     <div className="form-membership">
       <div className="form-wrapper">
         <div className="logo">
@@ -159,6 +178,8 @@ function Login() {
         </form>
       </div>
     </div>
+    <ToastContainer/>
+    </>
   );
 }
 
