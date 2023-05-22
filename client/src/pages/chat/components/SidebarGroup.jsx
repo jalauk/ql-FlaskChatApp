@@ -6,7 +6,7 @@ function SidebarGroup({currentUser}){
                     <span>Profile</span>
                     <ul className="list-inline">
                         <li className="list-inline-item">
-                            <a href="#" className="btn btn-outline-light text-danger sidebar-close">
+                            <a onClick={ e => e.preventDefault() } className="btn btn-outline-light text-danger sidebar-close">
                                 <i data-feather="x"></i>
                             </a>
                         </li>

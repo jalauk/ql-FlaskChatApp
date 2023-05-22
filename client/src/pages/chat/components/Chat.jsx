@@ -40,7 +40,7 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
         }
 
         if(!("room_id" in currentChat)){
-            if(previousChat != undefined){
+            if(previousChat !== undefined){
                 leaveRoom()
             }
             socket.current.emit("create-room",{"user_id":currentUser._id.$oid,"friend_id":currentChat._id.$oid},(room_id) => {
@@ -50,7 +50,7 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
             setMessages([])
         }
         else{
-            if(previousChat != undefined){ 
+            if(previousChat !== undefined){ 
                 leaveRoom()
             }
 
@@ -79,24 +79,6 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
                 "to" : currentChat._id.$oid,
                 "message" : message
             },(data) => console.log("sendmessage : ", {data}))
-
-            // socket.current.on("receive-message",(data) => {
-            //     console.log("messages1 : ",messages)
-            //     let tempMessage = [...messages]
-            //     tempMessage.push(data)
-            //     console.log("tempmessage : ",tempMessage)
-            //     setMessages(tempMessage)
-            //     console.log("messages2 : ",messages)
-            // })
-        
-        // console.log(message)
-        // let tempMessage = [...messages]
-        // console.log(tempMessage)
-        // tempMessage.push({"message" : message,"from" : currentUser._id.$oid})
-        // console.log(tempMessage)
-        // setMessages(tempMessage)
-        // tempMessage = []
-        // console.log("messages1 : ",messages)
     }
     
     useEffect(()=>{
@@ -132,25 +114,27 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
     const onScroll = async () => {
         if (listInnerRef.current) {
           const { scrollTop, scrollHeight, clientHeight } = listInnerRef.current;
-          if (scrollTop== 0) {
-
-            let messages_list = await axios.post(
-                `${process.env.REACT_APP_BASE_URL}/api/message/get-all-message?page=${page}`,
-                {
-                    "room_id" : currentChat.room_id
-                },
-                {
-                    headers : {
-                        "Authorization" : `Bearer ${localStorage.getItem("access_token")}`
+          if("room_id" in currentChat){
+            if (scrollTop==0) {
+                let messages_list = await axios.post(
+                    `${process.env.REACT_APP_BASE_URL}/api/message/get-all-message?page=${page}`,
+                    {
+                        "room_id" : currentChat.room_id
                     },
-                    
-                }
-            )
-            console.log(messages_list)
-            setPrevFetch(true)
-            setMessages((prev) => [...messages_list.data.data,...prev])    
-            setPage((prev) => prev + 1);
+                    {
+                        headers : {
+                            "Authorization" : `Bearer ${localStorage.getItem("access_token")}`
+                        },
+                        
+                    }
+                )
+                console.log(messages_list)
+                setPrevFetch(true)
+                setMessages((prev) => [...messages_list?.data.data,...prev])    
+                setPage((prev) => prev + 1);
+              }
           }
+          
         }
       };
 
@@ -221,33 +205,33 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
                 <div className="chat-header-action" style={{display:"none"}}>
                     <ul className="list-inline">
                         <li className="list-inline-item d-xl-none d-inline">
-                            <a href="#" className="btn btn-outline-light mobile-navigation-button">
+                            <a onClick={ e => e.preventDefault() } className="btn btn-outline-light mobile-navigation-button">
                                 <i data-feather="menu"></i>
                             </a>
                         </li>
                         <li className="list-inline-item" data-toggle="tooltip" title="Voice call">
-                            <a href="#" className="btn btn-outline-light text-success" data-toggle="modal"
+                            <a onClick={ e => e.preventDefault() } className="btn btn-outline-light text-success" data-toggle="modal"
                             data-target="#call">
                                 <i data-feather="phone"></i>
                             </a>
                         </li>
                         <li className="list-inline-item" data-toggle="tooltip" title="Video call">
-                            <a href="#" className="btn btn-outline-light text-warning" data-toggle="modal"
+                            <a onClick={ e => e.preventDefault() } className="btn btn-outline-light text-warning" data-toggle="modal"
                             data-target="#videoCall">
                                 <i data-feather="video"></i>
                             </a>
                         </li>
                         <li className="list-inline-item">
-                            <a href="#" className="btn btn-outline-light" data-toggle="dropdown">
+                            <a onClick={ e => e.preventDefault() } className="btn btn-outline-light" data-toggle="dropdown">
                                 <i data-feather="more-horizontal"></i>
                             </a>
                             <div className="dropdown-menu dropdown-menu-right">
-                                <a href="#" data-navigation-target="contact-information"
+                                <a onClick={ e => e.preventDefault() } data-navigation-target="contact-information"
                                 className="dropdown-item">Profile</a>
-                                <a href="#" className="dropdown-item">Add to archive</a>
-                                <a href="#" className="dropdown-item">Delete</a>
+                                <a onClick={ e => e.preventDefault() } className="dropdown-item">Add to archive</a>
+                                <a onClick={ e => e.preventDefault() } className="dropdown-item">Delete</a>
                                 <div className="dropdown-divider"></div>
-                                <a href="#" className="dropdown-item text-danger">Block</a>
+                                <a onClick={ e => e.preventDefault() } className="dropdown-item text-danger">Block</a>
                             </div>
                         </li>
                     </ul>

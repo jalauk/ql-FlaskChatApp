@@ -147,6 +147,7 @@ def getAllChats(user_id):
                     current_chat["online"] = True if str(participant.id) in ONLINE_USER else False
                     current_chat["is_group"] = False
                     current_chat["unread_count"] = unread_count
+                    current_chat["created_at"] = chat.created_at
         else:
             messages = Message.objects(chat_id=chat.id)
             last_message = None
@@ -172,12 +173,13 @@ def getAllChats(user_id):
             current_chat["message"] = last_message.text if last_message else None
             current_chat["message_time"] = str(last_message.created_at) if last_message else None
             current_chat["unread_count"] = unread_count
+            current_chat["created_at"] = chat.created_at
 
         chat_list.append(current_chat)
     return chat_list
 
 def createGroup(group_name,participants,user_id):
-    print("\n\n\n\n\nworking\n\n\n\n\n\n\n")
+    # print("\n\n\n\n\nworking\n\n\n\n\n\n\n")
     room_id = str(uuid4())
     group = Chat(room_id=room_id,participants=participants,group_name=group_name,is_group=True)
     group.save()

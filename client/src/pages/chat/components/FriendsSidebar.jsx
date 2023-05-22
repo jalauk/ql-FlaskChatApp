@@ -13,12 +13,12 @@ function FriendsSidebar({friendsList,changeChat}){
         <span>Friends</span>
         <ul className="list-inline">
             <li className="list-inline-item" data-toggle="tooltip" title="Add friends">
-                <a className="btn btn-outline-light" href="#" data-toggle="modal" data-target="#addFriends">
+                <a className="btn btn-outline-light" onClick={ e => e.preventDefault() } data-toggle="modal" data-target="#addFriends">
                     <i data-feather="user-plus"></i>
                 </a>
             </li>
             <li className="list-inline-item d-xl-none d-inline">
-                <a href="#" className="btn btn-outline-light text-danger sidebar-close">
+                <a onClick={ e => e.preventDefault() } className="btn btn-outline-light text-danger sidebar-close">
                     <i data-feather="x"></i>
                 </a>
             </li>
@@ -51,15 +51,15 @@ function FriendsSidebar({friendsList,changeChat}){
                             <div className="users-list-action">
                                 <div className="action-toggle">
                                     <div className="dropdown">
-                                        <a data-toggle="dropdown" href="#">
+                                        <a data-toggle="dropdown" onClick={ e => e.preventDefault() }>
                                             <i data-feather="more-horizontal"></i>
                                         </a>
                                         <div className="dropdown-menu dropdown-menu-right">
-                                            <a href="#" className="dropdown-item">New chat</a>
-                                            <a href="#" data-navigation-target="contact-information"
+                                            <a onClick={ e => e.preventDefault() } className="dropdown-item">New chat</a>
+                                            <a onClick={ e => e.preventDefault() } data-navigation-target="contact-information"
                                             className="dropdown-item">Profile</a>
                                             <div className="dropdown-divider"></div>
-                                            <a href="#" className="dropdown-item text-danger">Block</a>
+                                            <a onClick={ e => e.preventDefault() } className="dropdown-item text-danger">Block</a>
                                         </div>
                                     </div>
                                 </div>
