@@ -9,6 +9,7 @@ bp = Blueprint("message",__name__,url_prefix="/api/message")
 @auth
 def getAllMessage():
     page = request.args.get("page")
+    print(request.get_json())
     room_id = request.json["room_id"]
     data = messageService.getAllMessage(room_id,page)
     return httpResponse(200,"Success",data)

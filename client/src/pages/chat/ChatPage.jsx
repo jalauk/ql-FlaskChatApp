@@ -10,37 +10,64 @@ import ChatSidebar from "./components/ChatSidebar";
 import CreateGroup from "./components/CreateGroup";
 import SidebarGroup from "./components/SidebarGroup";
 import FriendsSidebar from "./components/FriendsSidebar";
+import {useNavigate } from 'react-router-dom';
 
 function ChatPage () {
     const socket = useRef();
+    const navigate = useNavigate();
     const [chatList,setChatList] = useState([])
+    const [isLoggedIn,setIsLoggedIn] = useState(false)
     const [friendsList,setFriendsList] = useState([])
     const [currentChat,setCurrentChat] = useState(undefined)
     const [previousChat,setPreviousChat] = useState(undefined)
     const [currentUser,setCurrentUser] = useState(JSON.parse(localStorage.getItem("user")))
 
-    // useEffect(()=>{
-    //     async function settingCurrentUser(){
-    //         setCurrentUser())
-    //     }
-    //     settingCurrentUser();
-    // },[])
+    useEffect(() => {
+        function settingCurUser(){
+            if (!localStorage.getItem("user")){
+                navigate("/");
+            }
+            else{
+                setIsLoggedIn(true)
+            }
+        }
+        settingCurUser()
+      }, [isLoggedIn]);
 
     useEffect(() => {
-        socket.current = io("http://localhost:5000")
-        socket.current.on("connect",() => {
-            socket.current.emit("add-user",currentUser._id.$oid)
-        })
+        async function getUser() {
+            const response = await axios.get(
+                `${process.env.REACT_APP_BASE_URL}/api/user/get-user`,
+                {
+                    headers: {
+                        "Authorization" : `Bearer ${localStorage.getItem("access_token")}`
+                    }
+                }
+            )
+            if(localStorage.getItem("user"))
+                localStorage.setItem("user",JSON.stringify(response.data.data))
+        }
+        if(isLoggedIn)
+            getUser()
+    },[currentUser])
+
+    useEffect(() => {
+        if(isLoggedIn){    
+            socket.current = io(`${process.env.REACT_APP_BASE_URL}`)
+            socket.current.on("connect",() => {
+                socket.current.emit("add-user",currentUser._id.$oid)
+            })
+        }
         // socket.current.on("disconnect",()=>{
         //     socket.current.emit("offline",currentUser._id.$oid,(data) => alert(data))
         // })
-    },[])
+    },[isLoggedIn])
 
     useEffect(()=>{
         async function settingFriendsList(){
             let access_token = localStorage.getItem("access_token")
             const friends_list = await axios.get(
-                "http://localhost:5000/api/user/get-all-users",
+                `${process.env.REACT_APP_BASE_URL}/api/user/get-all-users`,
                 {
                     headers: {
                         "Authorization" : `Bearer ${access_token}`
@@ -49,14 +76,17 @@ function ChatPage () {
             )
             setFriendsList(friends_list.data.data)
         }
-        settingFriendsList()
-    },[currentChat])
+        if(isLoggedIn)
+            settingFriendsList()
+    },[currentChat,isLoggedIn])
 
     useEffect(()=>{
         async function settingChatList(){
+            console.log({chatList})
+            console.log({currentChat})
             let access_token = localStorage.getItem("access_token")
             const chat_list = await axios.get(
-                "http://localhost:5000/api/user/get-all-chats",
+                `${process.env.REACT_APP_BASE_URL}/api/user/get-all-chats`,
                 {
                     headers: {
                         "Authorization" : `Bearer ${access_token}`
@@ -64,15 +94,17 @@ function ChatPage () {
                 }
             )
             const sorted_chat_list = chat_list.data.data.sort(function(a, b){
-                console.log("sorting datetime : ",a," : ",typeof(a.message_time))
                 var dateA = new Date(a.message_time)
                 var dateB = new Date(b.message_time)
                 return dateA < dateB ? 1 : -1;
             })
             setChatList(sorted_chat_list)
+            console.log({chatList})
         }
-        settingChatList()
-    },[currentChat])
+
+        if(isLoggedIn)
+            settingChatList()
+    },[currentChat,isLoggedIn])
 
     const handleChatChange = (chat) => {
         setPreviousChat(currentChat)
@@ -80,20 +112,18 @@ function ChatPage () {
     }
 
     useEffect(() => {
-        socket.current.on("user-online",(data) => {
-            const temp = structuredClone(chatList)
-            for(let i=0;i<temp.length;i++){
-                // console.log("inside for")
-                // console.log(data," ",temp[i]._id.$oid)
-                if(temp[i]._id.$oid === data)
-                {
-                    // console.log("inside if")
-                    temp[i].online = true
+        if(isLoggedIn){    
+            socket.current.on("user-online",(data) => {
+                const temp = structuredClone(chatList)
+                for(let i=0;i<temp.length;i++){
+                    if(temp[i]._id.$oid === data)
+                    {
+                        temp[i].online = true
+                    }
                 }
-            }
-            // console.log({temp});
-            setChatList(temp)
-        })
+                setChatList(temp)
+            })
+        }
 
         // socket.current.on("user-offline",(data) => {
         //     alert("disconnecting")
@@ -105,59 +135,85 @@ function ChatPage () {
         //     })
         //     setChatList(disconnect_list)
         // })
-    },[chatList])
+    },[chatList,isLoggedIn])
     // console.log({chatList});
 
     useEffect(() => {
-        socket.current.on(
-            "unread-count",
-            (data) => {
-                const new_chat_list = structuredClone(chatList);
-                new_chat_list.forEach((chat,index) => {
-                    if(chat.room_id === data.room_id){
-                        chat.message = data.message
-                        chat.unread_count = data.unread_count
-                        chat.message_time = data.time
+        if(isLoggedIn){
+            socket.current.on(
+                "unread-count",
+                (data) => {
+                    const new_chat_list = structuredClone(chatList);
+                    let room_exist = false
+                    new_chat_list.forEach((chat,index) => {
+                        if(chat.room_id === data.room_id){
+                            chat.message = data.message
+                            chat.unread_count = data.unread_count
+                            chat.message_time = data.time
+                            room_exist = true
+                        }
+                    })
+                    if(!room_exist){
+                        console.log("workinh")
+                        socket.current.emit(
+                            "get-room-detail",
+                            {
+                                room_id:data.room_id,
+                                user_id:currentUser._id.$oid
+                            },
+                            (data) => new_chat_list.push(data)
+                        )
                     }
+                    const sorted_chat_list = new_chat_list.sort(function(a, b){
+                        var dateA = new Date(a.message_time)
+                        var dateB = new Date(b.message_time)
+                        return dateA < dateB ? 1 : -1;
+                    })
+                    setChatList(new_chat_list)
                 })
-                const sorted_chat_list = new_chat_list.sort(function(a, b){
-                    var dateA = new Date(a.message_time)
-                    var dateB = new Date(b.message_time)
-                    // console.log(a.message_time," : ",dateA," and ",b.message_time," : ",dateB);
-                    return dateA < dateB ? 1 : -1;
-                })
-                setChatList(new_chat_list)
-            })
-    },[chatList])
+        }
+    },[chatList,isLoggedIn])
 
     function refectChangesOnChatbarAfterSendingMessage(data) {
         const new_chat_list = structuredClone(chatList);
-        console.log("data : ",data.time," ",new Date(data.time))
         new_chat_list.forEach((chat,index) => {
-            // console.log(index," : ",chat.message_time," ",new Date(chat.message_time))
             if(chat.room_id === data.room_id && currentUser._id.$oid===data.from){
                 chat.message = data.message
                 chat.unread_count = 0
+                chat.message_time = data.time
+            }
+            if(chat.room_id === data.room_id && currentUser._id.$oid!==data.from){
+                chat.message = data.message
                 chat.message_time = data.time
             }
         })
         const sorted_chat_list = new_chat_list.sort(function(a, b){
             var dateA = new Date(a.message_time)
             var dateB = new Date(b.message_time)
-            // console.log(a.message_time," : ",dateA," and ",b.message_time," : ",dateB);
             return dateA < dateB ? 1 : -1;
         })
         setChatList(sorted_chat_list)
     }
 
+    function appendGroupInChatList(group_info){
+        const new_chat_list = structuredClone(chatList);
+        new_chat_list.push(group_info)
+        setChatList(new_chat_list)
+    }
+
+    function updateImage(imageURL){
+        let update_current_user = structuredClone(currentUser)
+        update_current_user.profile = imageURL
+        setCurrentUser(update_current_user)
+    }
 
 
     return (
         <div>
-            <CreateGroup chatList={chatList} currentUser={currentUser}/>
-            <EditProfile/>
-            <div className="layout">
-                <Navigation/>
+            <CreateGroup chatList={chatList} currentUser={currentUser} appendGroupInChatList={appendGroupInChatList}/>
+            <EditProfile currentUser={currentUser} updateImage={updateImage}/>
+            <div className="layout" >
+                <Navigation currentUser={currentUser} />
                 <div className="content">
                     <div className="sidebar-group">
                         <ChatSidebar chatList={chatList} changeChat={handleChatChange}/>
@@ -173,7 +229,7 @@ function ChatPage () {
                         (<Chat currentChat={currentChat} currentUser={currentUser} socket={socket} previousChat={previousChat} refectChangesOnChatbarAfterSendingMessage={refectChangesOnChatbarAfterSendingMessage}/>)
 
                     }
-                    <SidebarGroup/>
+                    <SidebarGroup currentUser={currentUser}/>
                 </div>
             </div>
         </div>

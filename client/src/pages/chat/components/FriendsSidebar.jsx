@@ -35,7 +35,13 @@ function FriendsSidebar({friendsList,changeChat}){
                     <li key={friend._id.$oid} className="list-group-item" data-navigation-target="chats" onClick={() => changeCurrentChat(index, friend)}>
                         <div>
                             <figure className="avatar">
-                                <img src="dist/media/img/women_avatar5.jpg" className="rounded-circle" alt="image"/>
+                                {
+                                    friend.profile 
+                                        ? 
+                                            <img src={friend?.profile} className="rounded-circle" alt="image"/>
+                                        : 
+                                            <img src="dist/media/img/profile-icon.webp" className="rounded-circle" alt="image"/>
+                                }
                             </figure>
                         </div>
                         <div className="users-list-body">

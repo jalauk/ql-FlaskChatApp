@@ -16,7 +16,7 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
     useEffect(() => {
         async function getAllMessages () {
             let messages_list = await axios.post(
-                `http://localhost:5000/api/message/get-all-message?page=0`,
+                `${process.env.REACT_APP_BASE_URL}/api/message/get-all-message?page=0`,
                 {
                     "room_id" : currentChat.room_id
                 },
@@ -43,14 +43,14 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
             if(previousChat != undefined){
                 leaveRoom()
             }
-            console.log("previousChat : ",previousChat)
             socket.current.emit("create-room",{"user_id":currentUser._id.$oid,"friend_id":currentChat._id.$oid},(room_id) => {
                 currentChat.room_id = room_id
+                console.log("room_id : ",room_id)
             })
+            setMessages([])
         }
         else{
             if(previousChat != undefined){ 
-                // console.log("previousChat : ",previousChat)
                 leaveRoom()
             }
 
@@ -78,7 +78,7 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
                 "from" : currentUser._id.$oid,
                 "to" : currentChat._id.$oid,
                 "message" : message
-            })
+            },(data) => console.log("sendmessage : ", {data}))
 
             // socket.current.on("receive-message",(data) => {
             //     console.log("messages1 : ",messages)
@@ -102,10 +102,10 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
     useEffect(()=>{
       if(socket.current) {
         socket.current.on("receive-message",(data) => {
+            console.log("receives-message",data)
             let tempMessage = [...messages]
             tempMessage.push(data)
             setMessages(tempMessage)
-            // console.log({data})
             setPrevFetch(false)
             refectChangesOnChatbarAfterSendingMessage(data)
         })
@@ -132,11 +132,10 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
     const onScroll = async () => {
         if (listInnerRef.current) {
           const { scrollTop, scrollHeight, clientHeight } = listInnerRef.current;
-          console.log({scrollTop})
           if (scrollTop== 0) {
-            
+
             let messages_list = await axios.post(
-                `http://localhost:5000/api/message/get-all-message?page=${page}`,
+                `${process.env.REACT_APP_BASE_URL}/api/message/get-all-message?page=${page}`,
                 {
                     "room_id" : currentChat.room_id
                 },
@@ -147,6 +146,7 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
                     
                 }
             )
+            console.log(messages_list)
             setPrevFetch(true)
             setMessages((prev) => [...messages_list.data.data,...prev])    
             setPage((prev) => prev + 1);
@@ -154,29 +154,35 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
         }
       };
 
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         const response = await axios.get(
-    //             `https://api.instantwebtools.net/v1/passenger?page=${currPage}&size=10`
-    //         );
-    //         if (!response.data.data.length) {
-    //             setWasLastList(true);
-    //             return;
-    //         }
-    //         setPrevPage(currPage);
-    //         setMessages([...messages, ...response.data.data]);
-    //     };
-    //     if (!wasLastList && prevPage !== currPage) {
-    //         fetchData();
-    //     }
-    // }, [currPage, wasLastList, prevPage, userList]);
-
     function getGroupParticipantUsername(participants,from){
         for(let i=0;i<participants.length;i++){
             if(participants[i]._id.$oid === from)
                 return participants[i].username
         }
     }
+
+    function formatDate(date){
+        const current_date = new Date()
+        date = new Date(date)
+        if(current_date.getDate()-date.getDate()===1)
+            return `yesterday, ${moment(date).format('LT')}`
+        else if(current_date.getDate()-date.getDate() < 1)
+            return moment(date).format('LT')
+        else
+            return moment(date).format('lll')
+    }
+
+    useEffect(() => {
+        socket.current.on("message-seen",((data) => {
+            if(currentChat.room_id === data.room_id){
+                const seen_messages = structuredClone(messages);
+                seen_messages.forEach((message,index) => {
+                    message.seen_by = currentChat._id.$oid
+                })
+                setMessages(seen_messages)
+            }
+        }))
+    })
 
     useEffect(()=> {
         if(!prevFetch){
@@ -190,7 +196,18 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
             <div className="chat-header">
                 <div className="chat-header-user">
                     <figure className="avatar">
-                        <img src="dist/media/img/man_avatar3.jpg" className="rounded-circle" alt="image"/>
+                        {
+                            currentChat?.is_group ?
+                                <span className="avatar-title bg-warning bg-success rounded-circle">
+                                    <i className="fa fa-users"></i> 
+                                </span>
+                            :
+                                currentChat?.profile 
+                                    ? 
+                                        <img src={currentChat?.profile} className="rounded-circle" alt="image"/>
+                                    : 
+                                        <img src="dist/media/img/profile-icon.webp" className="rounded-circle" alt="image"/>
+                        }
                     </figure>
                     <div>
                         <h5>{currentChat.is_group ? currentChat.group_name : currentChat.username}</h5>
@@ -246,8 +263,15 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
                                     <div key={index} ref={scrollRef} className={`message-item ${currentUser._id.$oid===message.from ? "outgoing-message" : ""}`}>
                                         <div className="message-avatar">
                                             <figure className="avatar">
-                                                <img src="dist/media/img/women_avatar5.jpg" className="rounded-circle" alt="image"/>
-                                            </figure>
+                                                {
+                                                    currentUser._id.$oid===message.from 
+                                                        ?
+                                                            <img src={currentUser?.profile ? currentUser?.profile : "dist/media/img/profile-icon.webp"} className="rounded-circle" alt="image"/>  
+                                                        : 
+                                                            <img src={currentChat?.profile ? currentChat?.profile : "dist/media/img/profile-icon.webp"} className="rounded-circle" alt="image"/> 
+
+                                                }
+                                           </figure>
                                             <div>
                                                 <h5>{currentChat.is_group 
                                                         ? 
@@ -258,7 +282,8 @@ function Chat({currentChat,currentUser,socket,previousChat,refectChangesOnChatba
                                                                 getGroupParticipantUsername(currentChat.participants,message.from)
                                                         : 
                                                             currentUser._id.$oid===message.from? currentUser.username : currentChat.username}</h5>
-                                                <div className="time">{moment(message.time).format('lll')}<i className=
+                                                            
+                                                <div className="time">{formatDate(message.time)}<i className=
                                                     {
                                                         message.from === currentUser._id.$oid 
                                                         ? 

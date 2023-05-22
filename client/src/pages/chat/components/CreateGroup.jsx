@@ -1,33 +1,48 @@
 import React,{useRef, useState} from "react";
 import { Link } from 'react-router-dom';
 import axios from "axios";
+import MultipleSelectChip from "./Multiselect";
 
-function CreateGroup({chatList,currentUser}){
-    const hoverRef= useRef(null);
-    const selected=[];
+
+function CreateGroup({chatList,currentUser,appendGroupInChatList}){
+    const closeModalRef= useRef(null);
+    
+    const [personName, setPersonName] = React.useState([]);
+
     const handleSubmit  = async (e)=>{
         e.preventDefault();
-        const tempArray =e.target[2].selectedOptions;
+        const selected=[];
         selected.push(currentUser._id.$oid)
-        for(let i= 0;i<tempArray.length;i++){
-            selected.push(tempArray[i].value);
+        for(let i=0;i<personName.length;i++){
+            selected.push(personName[i]._id.$oid)
         }
         let response = await axios.post(
-            "http://localhost:5000/api/user/create-group"
-            ,{
+            `${process.env.REACT_APP_BASE_URL}/api/user/create-group`,
+            {
                 "participants" : selected,
                 "group_name" : e.target[0].value
-            }
-            ,{
+            },
+            {
                 headers : {
                     "Authorization" : `Bearer ${localStorage.getItem("access_token")}`
                 },
                 
             }
         )
+
+        if(response.data.data){
+            appendGroupInChatList(response.data.data)
+        }
+        closeModalRef.current.classList.remove("show");
+    }
+
+    function handlePersonName(value){
+        setPersonName(
+            typeof value === 'string' ? value.split(',') : value,
+          );
     }
     return (
-        <div className="modal fade" id="newGroup" tabndex="-1" role="dialog" aria-hidden="true">
+        <div className="modal fade" id="newGroup" tabndex="-1" role="dialog" aria-hidden="true" ref={closeModalRef}>
             <div className="modal-dialog modal-dialog-centered modal-dialog-zoom" role="document">
                 <div className="modal-content">
                     <div className="modal-header">
@@ -54,14 +69,8 @@ function CreateGroup({chatList,currentUser}){
                             <p className="mb-2">The group members</p>
                             <div className="form-group">
                                 <div className="avatar-group">
-                                    <div className="userList" ref={hoverRef} >
-                                        <select name="selectUser" multiple>    
-                                            {
-                                                chatList.map((e,index)=>{
-                                                    return (<option value={e._id.$oid} key={index}>{e.username}</option> )
-                                                })
-                                            }
-                                        </select>
+                                    <div className="userList"  >
+                                        <MultipleSelectChip chatList={chatList} personName={personName} handlePersonName={handlePersonName}/>
                                     </div>
                                 </div>
                             </div>
@@ -70,7 +79,7 @@ function CreateGroup({chatList,currentUser}){
                                 <textarea className="form-control" id="description"></textarea>
                             </div>
                                 <div className="modal-footer">
-                                    <button type="submit" className="btn btn-primary">Create Group</button>
+                                    <button type="submit" className="btn btn-primary" >Create Group</button>
                                 </div>
                         </form>
                     </div>  

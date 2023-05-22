@@ -3,7 +3,14 @@ import moment from 'moment'
 function ChatItem ({chat,index,changeCurrentChat,currentSelected}) {
 
   function formatingDate(date) {
-    return moment(date).format('LT')
+    const current_date = new Date()
+    date = new Date(date)
+    if(current_date.getDate()-date.getDate()===1)
+      return "yesterday"
+    else if(current_date.getDate() - date.getDate() > 1)
+      return moment(date).format("LL")
+    else
+      return moment(date).format('LT')
   }
 
     return (
@@ -18,11 +25,14 @@ function ChatItem ({chat,index,changeCurrentChat,currentSelected}) {
                       : "avatar"
                   }
                 >
-                  <img
-                    src="dist/media/img/man_avatar1.jpg"
-                    className="rounded-circle"
-                    alt="image"
-                  />
+                  {chat.is_group 
+                      ? 
+                          (<span className="avatar-title bg-warning bg-success rounded-circle">
+                              <i className="fa fa-users"></i> 
+                          </span>) 
+                      : 
+                        chat?.profile ? (<img src={chat?.profile} className="rounded-circle" alt="image"/>) : (<img src="dist/media/img/profile-icon.webp" className="rounded-circle" alt="image"/>)
+                  }
                 </figure>
                 <div className="users-list-body">
                   <div>
