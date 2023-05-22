@@ -4,7 +4,7 @@ from app.models import db
 import app.config as config
 from flask_cors import CORS
 from datetime import datetime
-from flask import Flask,request
+from flask import Flask,request,send_from_directory
 from app.models.chat import Chat
 from app.models.user import User
 from app.models import ONLINE_USER
@@ -18,7 +18,7 @@ from app.exceptions.accessDeniedException import AccessDeniedException
 from app.exceptions.unauthorizedException import UnauthorizedException
 from app.exceptions.unprocessableEntityException import UnprocessableEntityException
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../public')
 CORS(app, support_credentials=True)
 
 if os.environ.get("APP_ENV") == "dev":
@@ -27,6 +27,14 @@ elif os.environ.get("APP_ENV") == "prod":
     app.config.from_object(config.ProductionConfig)
 
 db.__init__(app)
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
 
 app.register_blueprint(userController.bp)
 app.register_blueprint(messageController.bp)
@@ -84,7 +92,7 @@ def createRoom(data):
         chat.save()
         join_room(room_id)
         ONLINE_USER[data["user_id"]]["room_id"] = room_id
-        print("\n\n\n\ncreate room online user : \n\n\n\n\n\n\n",ONLINE_USER)
+        # print("\n\n\n\ncreate room online user : \n\n\n\n\n\n\n",ONLINE_USER)
     except Exception as e:
         print(e)
     return room_id
@@ -97,7 +105,7 @@ def joinRoom(data):
     try:
         message_obj = Message.objects(chat_id=chat_id,sender__ne=data["from"]).update(set__seen_by=[data["from"]])
         socketio.emit("message-seen",{"room_id":data["room_id"]},to=data["room_id"],include_self=False)
-        print("\n\n\n\nonline user : \n\n\n\n\n\n\n",ONLINE_USER)
+        # print("\n\n\n\nonline user : \n\n\n\n\n\n\n",ONLINE_USER)
     except Exception as e:
         print(e)
     return ONLINE_USER

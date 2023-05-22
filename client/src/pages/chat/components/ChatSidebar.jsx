@@ -22,7 +22,7 @@ function ChatSidebar({ chatList, changeChat }) {
           >
             <a
               className="btn btn-outline-light"
-              href="#"
+              onClick={ e => e.preventDefault() }
               data-toggle="modal"
               data-target="#newGroup"
             >
@@ -34,7 +34,7 @@ function ChatSidebar({ chatList, changeChat }) {
               className="btn btn-outline-light"
               data-toggle="tooltip"
               title="New chat"
-              href="#"
+              onClick={ e => e.preventDefault() }
               data-navigation-target="friends"
             >
               <i data-feather="plus-circle"></i>
@@ -42,7 +42,7 @@ function ChatSidebar({ chatList, changeChat }) {
           </li>
           <li className="list-inline-item d-xl-none d-inline">
             <a
-              href="#"
+              onClick={ e => e.preventDefault() }
               className="btn btn-outline-light text-danger sidebar-close"
             >
               <i data-feather="x"></i>

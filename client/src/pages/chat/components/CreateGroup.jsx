@@ -1,5 +1,7 @@
 import React,{useRef, useState} from "react";
 import { Link } from 'react-router-dom';
+import {ToastContainer,toast} from 'react-toastify'
+import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import MultipleSelectChip from "./Multiselect";
 
@@ -8,6 +10,14 @@ function CreateGroup({chatList,currentUser,appendGroupInChatList}){
     const closeModalRef= useRef(null);
     
     const [personName, setPersonName] = React.useState([]);
+
+    const toastOptions = {
+        position: "bottom-right",
+        autoClose: 8000,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      };
 
     const handleSubmit  = async (e)=>{
         e.preventDefault();
@@ -30,6 +40,11 @@ function CreateGroup({chatList,currentUser,appendGroupInChatList}){
             }
         )
 
+        if(response.data.status === false){
+            if(response.data.code === 311)
+                toast.error(response.data.data.message.participants, toastOptions);
+        }
+
         if(response.data.data){
             appendGroupInChatList(response.data.data)
         }
@@ -42,6 +57,7 @@ function CreateGroup({chatList,currentUser,appendGroupInChatList}){
           );
     }
     return (
+        <>
         <div className="modal fade" id="newGroup" tabndex="-1" role="dialog" aria-hidden="true" ref={closeModalRef}>
             <div className="modal-dialog modal-dialog-centered modal-dialog-zoom" role="document">
                 <div className="modal-content">
@@ -86,6 +102,8 @@ function CreateGroup({chatList,currentUser,appendGroupInChatList}){
                 </div>
             </div>
         </div>
+        <ToastContainer/>
+        </>
     )
 }
 

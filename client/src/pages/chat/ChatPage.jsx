@@ -2,6 +2,7 @@ import axios from "axios";
 import {io} from "socket.io-client"
 import Chat from "./components/Chat"
 import Archived from "./components/Archived";
+import {useNavigate } from 'react-router-dom';
 import Favorites from "./components/Favorites";
 import Navigation from "./components/Navigation";
 import { useState,useEffect,useRef } from "react";
@@ -10,7 +11,6 @@ import ChatSidebar from "./components/ChatSidebar";
 import CreateGroup from "./components/CreateGroup";
 import SidebarGroup from "./components/SidebarGroup";
 import FriendsSidebar from "./components/FriendsSidebar";
-import {useNavigate } from 'react-router-dom';
 
 function ChatPage () {
     const socket = useRef();
@@ -21,6 +21,26 @@ function ChatPage () {
     const [currentChat,setCurrentChat] = useState(undefined)
     const [previousChat,setPreviousChat] = useState(undefined)
     const [currentUser,setCurrentUser] = useState(JSON.parse(localStorage.getItem("user")))
+
+    useEffect(() => {
+        const reloadPage = localStorage.getItem('reload');
+        if (reloadPage === '1') {
+           localStorage.setItem('reload', '0');
+           window.location.reload();
+        }
+    }, []);
+
+    function sortSideBar(data) {
+        return data.sort(function(a, b){
+            var dateB = new Date(b.message_time)
+            if (a.message_time) {
+                var dateA = new Date(a.message_time)
+            } else {
+                var dateA = new Date(a.chat_created_at)
+            }
+            return dateA < dateB ? 1 : -1;
+        })
+    }
 
     useEffect(() => {
         function settingCurUser(){
@@ -82,8 +102,6 @@ function ChatPage () {
 
     useEffect(()=>{
         async function settingChatList(){
-            console.log({chatList})
-            console.log({currentChat})
             let access_token = localStorage.getItem("access_token")
             const chat_list = await axios.get(
                 `${process.env.REACT_APP_BASE_URL}/api/user/get-all-chats`,
@@ -93,13 +111,10 @@ function ChatPage () {
                     }
                 }
             )
-            const sorted_chat_list = chat_list.data.data.sort(function(a, b){
-                var dateA = new Date(a.message_time)
-                var dateB = new Date(b.message_time)
-                return dateA < dateB ? 1 : -1;
-            })
+            console.log("chats : ",chat_list.data.data)
+            const sorted_chat_list = sortSideBar(chat_list.data.data)
+            console.log("chats : ",sorted_chat_list)
             setChatList(sorted_chat_list)
-            console.log({chatList})
         }
 
         if(isLoggedIn)
@@ -121,6 +136,7 @@ function ChatPage () {
                         temp[i].online = true
                     }
                 }
+                console.log('temp', temp);
                 setChatList(temp)
             })
         }
@@ -136,7 +152,6 @@ function ChatPage () {
         //     setChatList(disconnect_list)
         // })
     },[chatList,isLoggedIn])
-    // console.log({chatList});
 
     useEffect(() => {
         if(isLoggedIn){
@@ -154,7 +169,6 @@ function ChatPage () {
                         }
                     })
                     if(!room_exist){
-                        console.log("workinh")
                         socket.current.emit(
                             "get-room-detail",
                             {
@@ -164,17 +178,16 @@ function ChatPage () {
                             (data) => new_chat_list.push(data)
                         )
                     }
-                    const sorted_chat_list = new_chat_list.sort(function(a, b){
-                        var dateA = new Date(a.message_time)
-                        var dateB = new Date(b.message_time)
-                        return dateA < dateB ? 1 : -1;
-                    })
-                    setChatList(new_chat_list)
+                    console.log('new_chat_list - 181', new_chat_list);
+                    const sorted_chat_list = sortSideBar(new_chat_list)
+                    console.log('sorted_chat_list - 181', sorted_chat_list);
+                    setChatList(sorted_chat_list)
                 })
         }
     },[chatList,isLoggedIn])
 
     function refectChangesOnChatbarAfterSendingMessage(data) {
+        
         const new_chat_list = structuredClone(chatList);
         new_chat_list.forEach((chat,index) => {
             if(chat.room_id === data.room_id && currentUser._id.$oid===data.from){
@@ -187,17 +200,16 @@ function ChatPage () {
                 chat.message_time = data.time
             }
         })
-        const sorted_chat_list = new_chat_list.sort(function(a, b){
-            var dateA = new Date(a.message_time)
-            var dateB = new Date(b.message_time)
-            return dateA < dateB ? 1 : -1;
-        })
+        console.log('new_chat_list - 204', new_chat_list);
+        const sorted_chat_list = sortSideBar(new_chat_list)
+        console.log('sorted_chat_list - 206', sorted_chat_list);
         setChatList(sorted_chat_list)
     }
 
     function appendGroupInChatList(group_info){
         const new_chat_list = structuredClone(chatList);
         new_chat_list.push(group_info)
+        console.log('new_chat_list - 212', new_chat_list);
         setChatList(new_chat_list)
     }
 

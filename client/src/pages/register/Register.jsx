@@ -1,7 +1,7 @@
 import React,{useState,useEffect} from 'react'
 import { Link, useNavigate } from 'react-router-dom';
-// import {ToastContainer,toast} from 'react-toastify'
-// import "react-toastify/dist/ReactToastify.css";
+import {ToastContainer,toast} from 'react-toastify'
+import "react-toastify/dist/ReactToastify.css";
 import axios from "axios"
 
 function Register() {
@@ -19,13 +19,29 @@ function Register() {
     }
   },[])
 
+  const toastOptions = {
+    position: "bottom-right",
+    autoClose: 8000,
+    pauseOnHover: true,
+    draggable: true,
+    theme: "dark",
+  };
+
   const handleSubmit = async(e) => {
     e.preventDefault();
     const {username,email,password} = values;
     const {data} = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/user/signup`,{username,email,password});
     console.log(data)
     if (data.status === false) {
-      alert(data.data.message);
+      if(data.code === 311)
+      {
+        const key = Object.keys(data.data.message)
+        for(let i=0;i<key.length;i++)
+          toast.error(data.data.message[key[i]], toastOptions);
+      }
+      else{
+        toast.error(data.data.message, toastOptions);
+      }
     }
     if(data.status === true){
       navigate("/");
@@ -37,6 +53,7 @@ function Register() {
   }
 
   return (
+    <>
     <div className="form-membership">
       <div className="form-wrapper">
         <div className="logo">
@@ -144,6 +161,8 @@ function Register() {
         </form>
       </div>
     </div>
+    <ToastContainer/>
+    </>
   );
 }
 

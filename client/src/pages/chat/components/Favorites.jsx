@@ -4,7 +4,7 @@ function Favorites(){
         <span>Favorites</span>
         <ul className="list-inline">
             <li className="list-inline-item d-xl-none d-inline">
-                <a href="#" className="btn btn-outline-light text-danger sidebar-close">
+                <a onClick={ e => e.preventDefault() } className="btn btn-outline-light text-danger sidebar-close">
                     <i data-feather="x"></i>
                 </a>
             </li>
@@ -24,12 +24,12 @@ function Favorites(){
                     <div className="users-list-action">
                         <div className="action-toggle">
                             <div className="dropdown">
-                                <a data-toggle="dropdown" href="#">
+                                <a data-toggle="dropdown" onClick={ e => e.preventDefault() }>
                                     <i data-feather="more-horizontal"></i>
                                 </a>
                                 <div className="dropdown-menu dropdown-menu-right">
-                                    <a href="#" className="dropdown-item">Open</a>
-                                    <a href="#" className="dropdown-item">Remove favorites</a>
+                                    <a onClick={ e => e.preventDefault() } className="dropdown-item">Open</a>
+                                    <a onClick={ e => e.preventDefault() } className="dropdown-item">Remove favorites</a>
                                 </div>
                             </div>
                         </div>
@@ -45,12 +45,12 @@ function Favorites(){
                     <div className="users-list-action">
                         <div className="action-toggle">
                             <div className="dropdown">
-                                <a data-toggle="dropdown" href="#">
+                                <a data-toggle="dropdown" onClick={ e => e.preventDefault() }>
                                     <i data-feather="more-horizontal"></i>
                                 </a>
                                 <div className="dropdown-menu dropdown-menu-right">
-                                    <a href="#" className="dropdown-item">Open</a>
-                                    <a href="#" className="dropdown-item">Remove favorites</a>
+                                    <a onClick={ e => e.preventDefault() } className="dropdown-item">Open</a>
+                                    <a onClick={ e => e.preventDefault() } className="dropdown-item">Remove favorites</a>
                                 </div>
                             </div>
                         </div>
@@ -66,12 +66,12 @@ function Favorites(){
                     <div className="users-list-action">
                         <div className="action-toggle">
                             <div className="dropdown">
-                                <a data-toggle="dropdown" href="#">
+                                <a data-toggle="dropdown" onClick={ e => e.preventDefault() }>
                                     <i data-feather="more-horizontal"></i>
                                 </a>
                                 <div className="dropdown-menu dropdown-menu-right">
-                                    <a href="#" className="dropdown-item">Open</a>
-                                    <a href="#" className="dropdown-item">Remove favorites</a>
+                                    <a onClick={ e => e.preventDefault() } className="dropdown-item">Open</a>
+                                    <a onClick={ e => e.preventDefault() } className="dropdown-item">Remove favorites</a>
                                 </div>
                             </div>
                         </div>
@@ -87,12 +87,12 @@ function Favorites(){
                     <div className="users-list-action">
                         <div className="action-toggle">
                             <div className="dropdown">
-                                <a data-toggle="dropdown" href="#">
+                                <a data-toggle="dropdown" onClick={ e => e.preventDefault() }>
                                     <i data-feather="more-horizontal"></i>
                                 </a>
                                 <div className="dropdown-menu dropdown-menu-right">
-                                    <a href="#" className="dropdown-item">Open</a>
-                                    <a href="#" className="dropdown-item">Remove favorites</a>
+                                    <a onClick={ e => e.preventDefault() } className="dropdown-item">Open</a>
+                                    <a onClick={ e => e.preventDefault() } className="dropdown-item">Remove favorites</a>
                                 </div>
                             </div>
                         </div>

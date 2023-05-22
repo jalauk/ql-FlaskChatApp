@@ -1,11 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState,useLayoutEffect } from "react";
+import {ToastContainer,toast} from 'react-toastify'
+import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 
 function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    localStorage.setItem('reload', '1');
     if(localStorage.getItem("user")){
       navigate("/chat")
     }
@@ -16,6 +19,14 @@ function Login() {
     password: "",
   });
 
+  const toastOptions = {
+    position: "bottom-right",
+    autoClose: 8000,
+    pauseOnHover: true,
+    draggable: true,
+    theme: "dark",
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { username, email, password } = values;
@@ -25,7 +36,15 @@ function Login() {
       password,
     });
     if (data.status === false) {
-      alert(data.data.message);
+      if(data.code === 311)
+      {
+        const key = Object.keys(data.data.message)
+        for(let i=0;i<key.length;i++)
+          toast.error(data.data.message[key[i]], toastOptions);
+      }
+      else{
+        toast.error(data.data.message, toastOptions);
+      }
     }
     if (data.status === true) {
       localStorage.setItem("access_token",data.data.tokens.access_token)
@@ -40,6 +59,7 @@ function Login() {
   };
 
   return (
+    <>
     <div className="form-membership">
       <div className="form-wrapper">
         <div className="logo">
@@ -110,57 +130,42 @@ function Login() {
               onChange={(e) => handleChange(e)}
             ></input>
           </div>
-          <div className="form-group d-flex justify-content-between">
-            <div className="custom-control custom-checkbox">
-              <input
-                type="checkbox"
-                className="custom-control-input"
-                checked=""
-                readOnly
-                id="customCheck1"
-              ></input>
-              <label className="custom-control-label" htmlFor="customCheck1">
-                Remember me
-              </label>
-            </div>
-            <a href="reset-password.html">Reset password</a>
-          </div>
           <button className="btn btn-primary btn-block">Sign in</button>
           <hr />
           <p className="text-muted">Login with your social media account.</p>
           {/* <ul className="list-inline">
             <li className="list-inline-item">
-                <a href="#" className="btn btn-floating btn-facebook">
+                <a onClick={ e => e.preventDefault() } className="btn btn-floating btn-facebook">
                     <i className="fa fa-facebook"></i>
                 </a>
             </li>
             <li className="list-inline-item">
-                <a href="#" className="btn btn-floating btn-twitter">
+                <a onClick={ e => e.preventDefault() } className="btn btn-floating btn-twitter">
                     <i className="fa fa-twitter"></i>
                 </a>
             </li>
             <li className="list-inline-item">
-                <a href="#" className="btn btn-floating btn-dribbble">
+                <a onClick={ e => e.preventDefault() } className="btn btn-floating btn-dribbble">
                     <i className="fa fa-dribbble"></i>
                 </a>
             </li>
             <li className="list-inline-item">
-                <a href="#" className="btn btn-floating btn-linkedin">
+                <a onClick={ e => e.preventDefault() } className="btn btn-floating btn-linkedin">
                     <i className="fa fa-linkedin"></i>
                 </a>
             </li>
             <li className="list-inline-item">
-                <a href="#" className="btn btn-floating btn-google">
+                <a onClick={ e => e.preventDefault() } className="btn btn-floating btn-google">
                     <i className="fa fa-google"></i>
                 </a>
             </li>
             <li className="list-inline-item">
-                <a href="#" className="btn btn-floating btn-behance">
+                <a onClick={ e => e.preventDefault() } className="btn btn-floating btn-behance">
                     <i className="fa fa-behance"></i>
                 </a>
             </li>
             <li className="list-inline-item">
-                <a href="#" className="btn btn-floating btn-instagram">
+                <a onClick={ e => e.preventDefault() } className="btn btn-floating btn-instagram">
                     <i className="fa fa-instagram"></i>
                 </a>
             </li>
@@ -173,6 +178,8 @@ function Login() {
         </form>
       </div>
     </div>
+    <ToastContainer/>
+    </>
   );
 }
 
